@@ -78,7 +78,12 @@ public class MapsActivity extends FragmentActivity implements
 
         setUpMapIfNeeded();
         displayLocation();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpMapIfNeeded();
     }
 
     //Update the live location dot
@@ -145,11 +150,6 @@ public class MapsActivity extends FragmentActivity implements
             // Try to obtain the map from the SupportMapFragment.
             ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMapAsync(this);
-            // Check if we were successful in obtaining the map.
-            if (mMap != null)
-            {
-                setUpMap();
-            }
         }
     }
 
