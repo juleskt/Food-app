@@ -59,11 +59,6 @@ public class MapsActivity extends FragmentActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                FINE_LOCATION_PERMISSION);
-
         Toast.makeText(
                 getApplicationContext(),
                 "Sanity Check",
@@ -75,7 +70,13 @@ public class MapsActivity extends FragmentActivity implements
             // Building the GoogleApi client
             buildGoogleApiClient();
         }
-        setUpMap();
+
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                FINE_LOCATION_PERMISSION);
+
+        setUpMapIfNeeded();
         displayLocation();
 
     }
@@ -110,11 +111,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        setUpMap();
     }
 
     @Override
@@ -137,6 +134,22 @@ public class MapsActivity extends FragmentActivity implements
             // Turn off basic menu
             mMap.getUiSettings().setMapToolbarEnabled(false);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(39.8282, -98.5795), 3.0f));
+        }
+    }
+
+    //Set up the map the first time
+    private void setUpMapIfNeeded()
+    {
+        // Do a null check to confirm that we have not already instantiated the map.
+        if (mMap == null) {
+            // Try to obtain the map from the SupportMapFragment.
+            ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMapAsync(this);
+            // Check if we were successful in obtaining the map.
+            if (mMap != null)
+            {
+                setUpMap();
+            }
         }
     }
 
