@@ -13,12 +13,17 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -42,12 +47,6 @@ public class MapsActivity extends FragmentActivity implements
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-        Toast.makeText(
-                getApplicationContext(),
-                "Sanity Check",
-                Toast.LENGTH_SHORT).show();
 
         //Making sure Google maps is gucci
         if (checkPlayServices())
@@ -61,6 +60,7 @@ public class MapsActivity extends FragmentActivity implements
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 FINE_LOCATION_PERMISSION);
 
+        mapFragment.getMapAsync(this);
         setUpMapIfNeeded();
         displayLocation();
     }
@@ -106,12 +106,32 @@ public class MapsActivity extends FragmentActivity implements
 
     @Override
     public void onMapClick(LatLng point) {
-        displayLocation();
+        Toast.makeText(
+                getApplicationContext(),
+                "Testing Single tap click",
+                Toast.LENGTH_SHORT).show();
+
+        mMap.addMarker(new MarkerOptions()
+                .position(point)
+                .title("You are here")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+        Log.i("Clicked! " + point.toString(), "Wut");
     }
 
     @Override
     public void onMapLongClick(LatLng point) {
+        Toast.makeText(
+                getApplicationContext(),
+                "Writing to DB...",
+                Toast.LENGTH_SHORT).show();
 
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("testCoordinates");
+
+        myRef.setValue(point.toString());
+        myRef.
     }
 
     private void setUpMap() {
@@ -123,7 +143,10 @@ public class MapsActivity extends FragmentActivity implements
             mMap.setBuildingsEnabled(false);
             // Turn off basic menu
             mMap.getUiSettings().setMapToolbarEnabled(false);
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(39.8282, -98.5795), 3.0f));
+            //Set up map click listeners
+            mMap.setOnMapClickListener(this);
+            mMap.setOnMapLongClickListener(this);
+            displayLocation();
         }
     }
 
@@ -141,11 +164,6 @@ public class MapsActivity extends FragmentActivity implements
     //Checking if we are connected
     private boolean checkPlayServices()
     {
-        Toast.makeText(
-                getApplicationContext(),
-                "Yo wtf rly",
-                Toast.LENGTH_LONG).show();
-
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
         int result = googleAPI.isGooglePlayServicesAvailable(this);
         if(result != ConnectionResult.SUCCESS) {
@@ -158,7 +176,6 @@ public class MapsActivity extends FragmentActivity implements
 
             return false;
         }
-
         return true;
     }
 
@@ -167,8 +184,8 @@ public class MapsActivity extends FragmentActivity implements
     {
         Toast.makeText(
                 getApplicationContext(),
-                "Connection to Google API...",
-                Toast.LENGTH_LONG).show();
+                "Connecting to Google API...",
+                Toast.LENGTH_SHORT).show();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
