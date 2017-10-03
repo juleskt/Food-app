@@ -5,10 +5,11 @@ android {
     buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "ec601.aty.food_app"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
+        resConfigs "auto"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -24,12 +25,15 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:26.+'
-    compile 'com.google.android.gms:play-services-maps:11.0.4'
-    compile 'com.google.firebase:firebase-database:10.0.1'
-    compile 'com.google.android.gms:play-services:11.0.4'
+
+    compile 'com.google.android.gms:play-services-maps:11.4.0'
+    compile 'com.google.firebase:firebase-database:11.4.0'
+    compile 'com.google.android.gms:play-services:11.4.0'
+    compile 'com.google.firebase:firebase-core:11.4.0'
+    compile 'com.google.firebase:firebase-auth:11.4.0'
+    // FirebaseUI Auth only
+    compile 'com.firebaseui:firebase-ui-auth:2.4.0'
     testCompile 'junit:junit:4.12'
 }
-
 
 apply plugin: 'com.google.gms.google-services'
