@@ -128,10 +128,9 @@ public class MapsActivity extends FragmentActivity implements
 
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("testCoordinates");
+        DatabaseReference myRef = database.getReference("testCoordinates").push();
 
         myRef.setValue(point.toString());
-        myRef.
     }
 
     private void setUpMap() {
