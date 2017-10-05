@@ -22,8 +22,16 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -108,21 +116,6 @@ public class MapsActivity extends FragmentActivity implements
     public void onMapClick(LatLng point) {
         Toast.makeText(
                 getApplicationContext(),
-                "Testing Single tap click",
-                Toast.LENGTH_SHORT).show();
-
-        mMap.addMarker(new MarkerOptions()
-                .position(point)
-                .title("You are here")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-
-        Log.i("Clicked! " + point.toString(), "Wut");
-    }
-
-    @Override
-    public void onMapLongClick(LatLng point) {
-        Toast.makeText(
-                getApplicationContext(),
                 "Writing to DB...",
                 Toast.LENGTH_SHORT).show();
 
@@ -130,7 +123,52 @@ public class MapsActivity extends FragmentActivity implements
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("testCoordinates").push();
 
-        myRef.setValue(point.toString());
+        Map<String, SimplePoint> latLngMap = new HashMap<>();
+        latLngMap.put(myRef.push().getKey(), new SimplePoint(point.latitude, point.longitude));
+
+        myRef.setValue(point);
+
+        mMap.addMarker(new MarkerOptions()
+                .position(point)
+                .title("You are here")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+    }
+
+    @Override
+    public void onMapLongClick(LatLng point) {
+        mMap.clear();
+
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("testCoordinates");
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                testLoopThroughFirebaseData(dataSnapshot);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        Log.i("Trying to read from DB", "Long click!!");
+    }
+
+    private void testLoopThroughFirebaseData(DataSnapshot dataSnapshot) {
+        List<SimplePoint> pointsFromDB= new ArrayList<>();
+        dataSnapshot.getChildren().forEach(data -> {
+           pointsFromDB.add(data.getValue(SimplePoint.class));
+        });
+
+        pointsFromDB.stream()
+                    .forEach(point -> {
+                        mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(point.getLatitude(), point.getLongitude()))
+                                .title(point.getDescription())
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    });
     }
 
     private void setUpMap() {
@@ -172,7 +210,6 @@ public class MapsActivity extends FragmentActivity implements
                         result,
                         PLAY_SERVICES_RESOLUTION_REQUEST).show();
             }
-
             return false;
         }
         return true;
@@ -221,15 +258,13 @@ public class MapsActivity extends FragmentActivity implements
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                } else {
-
+                }
+                else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-
                 }
                 return;
             }
-
             // other 'case' lines to check for other
             // permissions this app might request
         }
