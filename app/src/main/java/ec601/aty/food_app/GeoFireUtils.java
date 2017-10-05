@@ -17,21 +17,27 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GeoFireUtils {
+public class GeoFireUtils
+{
     private static final String GEOFIRE_NODE_PATH = "geoFireAyy";
     private static GeoQuery geoQuery;
     private static Map<String, LatLng> geofireKeysLatLngMap = new HashMap<>();
 
-    public static String pushLocationToGeofire(LatLng latLng) {
+    public static String pushLocationToGeofire(LatLng latLng)
+    {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(GEOFIRE_NODE_PATH);
         String firebasePushKey = FirebaseDatabase.getInstance().getReference(GEOFIRE_NODE_PATH).push().getKey();
         GeoFire geoFireRef = new GeoFire(ref);
-        geoFireRef.setLocation(firebasePushKey, new GeoLocation(latLng.latitude, latLng.longitude), new GeoFire.CompletionListener() {
+        geoFireRef.setLocation(firebasePushKey, new GeoLocation(latLng.latitude, latLng.longitude), new GeoFire.CompletionListener()
+        {
             @Override
-            public void onComplete(String key, DatabaseError error) {
-                if (error == null) {
+            public void onComplete(String key, DatabaseError error)
+            {
+                if (error == null)
+                {
 
-                } else {
+                } else
+                {
                     System.err.println("There was an error saving the location to GeoFire: " + error);
 
                 }
@@ -41,46 +47,60 @@ public class GeoFireUtils {
         return firebasePushKey;
     }
 
-    public static void setGeoQueryLocation(LatLng centerLatLng) {
+    public static void setGeoQueryLocation(LatLng centerLatLng)
+    {
         setGeoQueryLocation(centerLatLng, 1);
     }
 
-    public static void setGeoQueryLocation(LatLng centerLatLng, double queryRadius) {
+    public static void setGeoQueryLocation(LatLng centerLatLng, double queryRadius)
+    {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(GEOFIRE_NODE_PATH);
         GeoFire geoFire = new GeoFire(ref);
         geoQuery = geoFire.queryAtLocation(new GeoLocation(centerLatLng.latitude, centerLatLng.longitude), queryRadius);
     }
 
-    public static void radiusGeoQuery(GoogleMap mMap) {
+    public static void radiusGeoQuery(GoogleMap mMap)
+    {
         geofireKeysLatLngMap.clear();
         mMap.clear();
 
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener()
+        {
             @Override
-            public void onKeyEntered(String key, GeoLocation location) {
+            public void onKeyEntered(String key, GeoLocation location)
+            {
                 geofireKeysLatLngMap.put(key, new LatLng(location.latitude, location.longitude));
             }
 
             @Override
-            public void onKeyExited(String key) {}
+            public void onKeyExited(String key)
+            {
+            }
 
             @Override
-            public void onKeyMoved(String key, GeoLocation location) {}
+            public void onKeyMoved(String key, GeoLocation location)
+            {
+            }
 
             @Override
-            public void onGeoQueryReady() {
+            public void onGeoQueryReady()
+            {
                 geoQuery.removeAllListeners();
                 displayGeoQueryResultsOnMap(mMap);
             }
 
             @Override
-            public void onGeoQueryError(DatabaseError error) {}
+            public void onGeoQueryError(DatabaseError error)
+            {
+            }
         });
     }
 
-    private static void displayGeoQueryResultsOnMap(GoogleMap mMap) {
+    private static void displayGeoQueryResultsOnMap(GoogleMap mMap)
+    {
         // Do some relation with Firebase objects to get actual data
-        geofireKeysLatLngMap.forEach( (key, value) -> {
+        geofireKeysLatLngMap.forEach((key, value) ->
+        {
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(value.latitude, value.longitude))
                     .title("test")

@@ -15,19 +15,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
+
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,18 +37,21 @@ public class MapsActivity extends FragmentActivity implements
         GoogleMap.OnMapClickListener,
         GoogleMap.OnMapLongClickListener,
         GoogleMap.OnCameraIdleListener,
-        GoogleMap.OnCameraMoveStartedListener {
+        GoogleMap.OnCameraMoveStartedListener
+{
 
     public static GoogleMap mMap;
     // Google client to interact with Google API
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    private SimplePoint markerLocation;
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
     public static Map<String, LatLng> geofireKeysLatLngMap = new HashMap<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
@@ -75,7 +77,8 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume()
+    {
         super.onResume();
         setUpMapIfNeeded();
     }
@@ -84,15 +87,18 @@ public class MapsActivity extends FragmentActivity implements
     private void displayLocation()
     {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) {
+                PackageManager.PERMISSION_GRANTED)
+        {
             mLastLocation = LocationServices.FusedLocationApi
                     .getLastLocation(mGoogleApiClient);
 
-            if (mLastLocation != null) {
+            if (mLastLocation != null)
+            {
                 double latitude = mLastLocation.getLatitude();
                 double longitude = mLastLocation.getLongitude();
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 14.0f));
-            } else {
+            } else
+            {
 
             }
         }
@@ -108,35 +114,55 @@ public class MapsActivity extends FragmentActivity implements
      * installed Google Play services and returned to the app.
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(GoogleMap googleMap)
+    {
         mMap = googleMap;
         setUpMap();
     }
 
     @Override
-    public void onMapClick(LatLng point) {
+    public void onMapClick(LatLng point)
+    {
 
         // Write a message to the database
-       // FirebaseDatabase database = FirebaseDatabase.getInstance();
-       // DatabaseReference myRef = database.getReference("testCoordinates").push();
-       // String firebasePushKey = myRef.push().getKey();
+        // FirebaseDatabase database = FirebaseDatabase.getInstance();
+        // DatabaseReference myRef = database.getReference("testCoordinates").push();
+        // String firebasePushKey = myRef.push().getKey();
 
-        String refKey = GeoFireUtils.pushLocationToGeofire(point);
-
+        markerLocation = new SimplePoint(point.latitude, point.longitude);
         mMap.addMarker(new MarkerOptions()
                 .position(point)
                 .title("You are here")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
     }
 
-    @Override
-    public void onMapLongClick(LatLng point) {
+
+    public void onMapLoginClick(View view)
+    {
+        int x = 5 + 5;
+    }
+
+    public void onMapClearClick(View view)
+    {
         mMap.clear();
     }
 
-    private void setUpMap() {
+    public void onMapPublishClick(View view)
+    {
+        String refKey = GeoFireUtils.pushLocationToGeofire(markerLocation.getLatLng());
+    }
+
+    @Override
+    public void onMapLongClick(LatLng point)
+    {
+        mMap.clear();
+    }
+
+    private void setUpMap()
+    {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) {
+                PackageManager.PERMISSION_GRANTED)
+        {
             // Live locations
             mMap.setMyLocationEnabled(true);
             // Remove buildings
@@ -157,7 +183,8 @@ public class MapsActivity extends FragmentActivity implements
     private void setUpMapIfNeeded()
     {
         // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
+        if (mMap == null)
+        {
             // Try to obtain the map from the SupportMapFragment.
             ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMapAsync(this);
@@ -169,8 +196,10 @@ public class MapsActivity extends FragmentActivity implements
     {
         GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
         int result = googleAPI.isGooglePlayServicesAvailable(this);
-        if(result != ConnectionResult.SUCCESS) {
-            if(googleAPI.isUserResolvableError(result)) {
+        if (result != ConnectionResult.SUCCESS)
+        {
+            if (googleAPI.isUserResolvableError(result))
+            {
                 googleAPI.getErrorDialog(
                         this,
                         result,
@@ -197,15 +226,19 @@ public class MapsActivity extends FragmentActivity implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case FINE_LOCATION_PERMISSION: {
+                                           String permissions[], int[] grantResults)
+    {
+        switch (requestCode)
+        {
+            case FINE_LOCATION_PERMISSION:
+            {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
 
-                }
-                else {
+                } else
+                {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
@@ -217,10 +250,13 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onCameraMoveStarted(int reason) {}
+    public void onCameraMoveStarted(int reason)
+    {
+    }
 
     @Override
-    public void onCameraIdle() {
+    public void onCameraIdle()
+    {
         GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target);
         GeoFireUtils.radiusGeoQuery(mMap);
     }
@@ -234,7 +270,9 @@ public class MapsActivity extends FragmentActivity implements
 
     // Spam retry, lol maybe want to have better behavior in the future
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) { }
+    public void onConnectionFailed(ConnectionResult connectionResult)
+    {
+    }
 
     //When disconnected, try to recon
     @Override

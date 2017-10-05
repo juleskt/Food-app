@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Food-app</string>
     <string name="title_activity_maps">Map</string>
+    <string name="login">Login</string>
+    <string name="publish_location">Publish Location</string>
+    <string name="clear_map">Clear Map</string>
 </resources>
