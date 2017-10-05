@@ -28,9 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements
@@ -38,14 +36,17 @@ public class MapsActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         GoogleMap.OnMapClickListener,
-        GoogleMap.OnMapLongClickListener {
+        GoogleMap.OnMapLongClickListener,
+        GoogleMap.OnCameraIdleListener,
+        GoogleMap.OnCameraMoveStartedListener {
 
-    private GoogleMap mMap;
+    public static GoogleMap mMap;
     // Google client to interact with Google API
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
+    public static Map<String, LatLng> geofireKeysLatLngMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,19 +115,13 @@ public class MapsActivity extends FragmentActivity implements
 
     @Override
     public void onMapClick(LatLng point) {
-        Toast.makeText(
-                getApplicationContext(),
-                "Writing to DB...",
-                Toast.LENGTH_SHORT).show();
 
         // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("testCoordinates").push();
+       // FirebaseDatabase database = FirebaseDatabase.getInstance();
+       // DatabaseReference myRef = database.getReference("testCoordinates").push();
+       // String firebasePushKey = myRef.push().getKey();
 
-        Map<String, SimplePoint> latLngMap = new HashMap<>();
-        latLngMap.put(myRef.push().getKey(), new SimplePoint(point.latitude, point.longitude));
-
-        myRef.setValue(point);
+        String refKey = GeoFireUtils.pushLocationToGeofire(point);
 
         mMap.addMarker(new MarkerOptions()
                 .position(point)
@@ -137,38 +132,6 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapLongClick(LatLng point) {
         mMap.clear();
-
-        // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("testCoordinates");
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                testLoopThroughFirebaseData(dataSnapshot);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        Log.i("Trying to read from DB", "Long click!!");
-    }
-
-    private void testLoopThroughFirebaseData(DataSnapshot dataSnapshot) {
-        List<SimplePoint> pointsFromDB= new ArrayList<>();
-        dataSnapshot.getChildren().forEach(data -> {
-           pointsFromDB.add(data.getValue(SimplePoint.class));
-        });
-
-        pointsFromDB.stream()
-                    .forEach(point -> {
-                        mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(point.getLatitude(), point.getLongitude()))
-                                .title(point.getDescription())
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                    });
     }
 
     private void setUpMap() {
@@ -180,9 +143,12 @@ public class MapsActivity extends FragmentActivity implements
             mMap.setBuildingsEnabled(false);
             // Turn off basic menu
             mMap.getUiSettings().setMapToolbarEnabled(false);
-            //Set up map click listeners
+            // Set up map click listeners
             mMap.setOnMapClickListener(this);
             mMap.setOnMapLongClickListener(this);
+            // Set up map movement listeners
+            mMap.setOnCameraIdleListener(this);
+            mMap.setOnCameraMoveStartedListener(this);
             displayLocation();
         }
     }
@@ -229,26 +195,6 @@ public class MapsActivity extends FragmentActivity implements
                 .addApi(LocationServices.API).build();
     }
 
-    //When connected to API
-    @Override
-    public void onConnected(Bundle bundle)
-    {
-        displayLocation();
-    }
-
-    // Spam retry, lol maybe want to have better behavior in the future
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
-
-    //When disconnected, try to recon
-    @Override
-    public void onConnectionSuspended(int i)
-    {
-        mGoogleApiClient.connect();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -268,5 +214,32 @@ public class MapsActivity extends FragmentActivity implements
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    @Override
+    public void onCameraMoveStarted(int reason) {}
+
+    @Override
+    public void onCameraIdle() {
+        GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target);
+        GeoFireUtils.radiusGeoQuery(mMap);
+    }
+
+    //When connected to API
+    @Override
+    public void onConnected(Bundle bundle)
+    {
+        displayLocation();
+    }
+
+    // Spam retry, lol maybe want to have better behavior in the future
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) { }
+
+    //When disconnected, try to recon
+    @Override
+    public void onConnectionSuspended(int i)
+    {
+        mGoogleApiClient.connect();
     }
 }

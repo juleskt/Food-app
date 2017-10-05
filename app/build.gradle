@@ -39,6 +39,7 @@ dependencies {
     // FirebaseUI Auth only
     compile 'com.firebaseui:firebase-ui-auth:2.4.0'
     testCompile 'junit:junit:4.12'
+    compile 'com.firebase:geofire-android:2.1.2'
 }
 
 apply plugin: 'com.google.gms.google-services'
