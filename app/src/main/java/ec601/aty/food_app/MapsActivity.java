@@ -139,7 +139,10 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapLoginClick(View view)
     {
-        int x = 5 + 5;
+        Toast.makeText(
+                getApplicationContext(),
+                "Login Functionality not yet implemented",
+                Toast.LENGTH_SHORT).show();
     }
 
     public void onMapClearClick(View view)
