@@ -43,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements
     public static GoogleMap mMap;
     // Google client to interact with Google API
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
+    private Location mLastLocation = null;
     private SimplePoint markerLocation;
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
@@ -128,7 +128,6 @@ public class MapsActivity extends FragmentActivity implements
         // FirebaseDatabase database = FirebaseDatabase.getInstance();
         // DatabaseReference myRef = database.getReference("testCoordinates").push();
         // String firebasePushKey = myRef.push().getKey();
-
         markerLocation = new SimplePoint(point.latitude, point.longitude);
         mMap.addMarker(new MarkerOptions()
                 .position(point)
@@ -147,11 +146,20 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapClearClick(View view)
     {
+        markerLocation = null;
         mMap.clear();
     }
 
     public void onMapPublishClick(View view)
     {
+        if(null==markerLocation)
+        {
+            Toast.makeText(
+                    getApplicationContext(),
+                    "Please place a marker",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
         String refKey = GeoFireUtils.pushLocationToGeofire(markerLocation.getLatLng());
     }
 
