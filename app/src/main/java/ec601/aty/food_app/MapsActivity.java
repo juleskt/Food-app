@@ -1,7 +1,9 @@
 package ec601.aty.food_app;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -20,10 +22,13 @@ import android.location.Location;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 
 
 import java.time.LocalDate;
@@ -48,6 +53,11 @@ public class MapsActivity extends FragmentActivity implements
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
     public static Map<String, LatLng> geofireKeysLatLngMap = new HashMap<>();
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private Button logout;
+    private TextView userEmail;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -74,6 +84,31 @@ public class MapsActivity extends FragmentActivity implements
         mapFragment.getMapAsync(this);
         setUpMapIfNeeded();
         displayLocation();
+
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if(firebaseAuth.getCurrentUser() != null){
+                    userEmail = (TextView) findViewById(R.id.userEmail);
+                    userEmail.setText(mAuth.getCurrentUser().getEmail());
+                }
+            }
+        };
+
+        logout = (Button) findViewById(R.id.logout);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mAuth.getCurrentUser() != null) {
+                    mAuth.signOut();
+                    Toast.makeText(MapsActivity.this,"Signing Out",Toast.LENGTH_LONG).show();
+                    userEmail = (TextView) findViewById(R.id.userEmail);
+                    userEmail.setText("None");
+                    logout.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
     }
 
     @Override
@@ -138,10 +173,11 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapLoginClick(View view)
     {
-        Toast.makeText(
-                getApplicationContext(),
-                "Login Functionality not yet implemented",
-                Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+        Button mButton = (Button) findViewById(R.id.logout);
+        if (mAuth.getCurrentUser() != null) {
+            mButton.setVisibility(View.VISIBLE);
+        }
     }
 
     public void onMapClearClick(View view)
@@ -290,5 +326,12 @@ public class MapsActivity extends FragmentActivity implements
     public void onConnectionSuspended(int i)
     {
         mGoogleApiClient.connect();
+    }
+
+    //start authentication methods
+    protected void onStart(){
+        super.onStart();
+
+        mAuth.addAuthStateListener(mAuthListener);
     }
 }

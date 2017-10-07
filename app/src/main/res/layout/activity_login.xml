@@ -6,4 +6,8 @@
     android:layout_height="match_parent"
     tools:context="ec601.aty.food_app.LoginActivity">
 
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/googleBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></com.google.android.gms.common.SignInButton>
 </android.support.constraint.ConstraintLayout>

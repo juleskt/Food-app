@@ -4,4 +4,7 @@
     <string name="login">Login</string>
     <string name="publish_location">Publish Location</string>
     <string name="clear_map">Clear Map</string>
+    <string name="logout">Logout</string>
+    <string name="userEmail">None</string>
+    <string name="google_maps_key">AIzaSyAAYg0aVAVlLt96WA9EG6vojFadDnB3_90</string>
 </resources>
