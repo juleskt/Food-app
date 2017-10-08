@@ -43,4 +43,22 @@
         app:layout_constraintEnd_toStartOf="@+id/sendLocationToFireBase"
         app:layout_constraintLeft_toLeftOf="parent"/>
 
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="68dp"
+        android:layout_height="36dp"
+        android:layout_weight="1"
+        android:onClick="onMapClearClick"
+        android:text="@string/logout"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/userEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="None"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
