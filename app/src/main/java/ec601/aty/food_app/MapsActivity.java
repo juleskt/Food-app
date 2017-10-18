@@ -51,7 +51,7 @@ public class MapsActivity extends FragmentActivity implements
     // Google client to interact with Google API
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation = null;
-    private SimplePoint markerLocation;
+    private MapPoint markerLocation;
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
     public static Map<String, LatLng> geofireKeysLatLngMap = new HashMap<>();
@@ -160,12 +160,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapClick(LatLng point)
     {
-
-        // Write a message to the database
-        // FirebaseDatabase database = FirebaseDatabase.getInstance();
-        // DatabaseReference myRef = database.getReference("testCoordinates").push();
-        // String firebasePushKey = myRef.push().getKey();
-        markerLocation = new SimplePoint(point.latitude, point.longitude);
+        markerLocation = new MapPoint(new LatLng(point.latitude, point.longitude));
         mMap.addMarker(new MarkerOptions()
                 .position(point)
                 .title("You are here")
@@ -198,7 +193,7 @@ public class MapsActivity extends FragmentActivity implements
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        String refKey = GeoFireUtils.pushLocationToGeofire(markerLocation.getLatLng());
+        String refKey = GeoFireUtils.pushLocationToGeofire(markerLocation.getCoordinates());
         FirebaseUtils.pushPointData(refKey, "Hello, World!");
     }
 
