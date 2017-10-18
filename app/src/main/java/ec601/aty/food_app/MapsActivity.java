@@ -29,6 +29,8 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 import java.time.LocalDate;
@@ -167,7 +169,7 @@ public class MapsActivity extends FragmentActivity implements
         mMap.addMarker(new MarkerOptions()
                 .position(point)
                 .title("You are here")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
     }
 
 
@@ -188,7 +190,7 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapPublishClick(View view)
     {
-        if(null==markerLocation)
+        if ( null==markerLocation )
         {
             Toast.makeText(
                     getApplicationContext(),
@@ -197,6 +199,7 @@ public class MapsActivity extends FragmentActivity implements
             return;
         }
         String refKey = GeoFireUtils.pushLocationToGeofire(markerLocation.getLatLng());
+        FirebaseUtils.pushPointData(refKey, "Hello, World!");
     }
 
     @Override
