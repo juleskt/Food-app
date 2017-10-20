@@ -57,7 +57,7 @@ public class MapsActivity extends FragmentActivity implements
     public static Map<String, LatLng> geofireKeysLatLngMap = new HashMap<>();
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private Button logout;
+    private Button loginButton;
     private TextView userEmail;
 
 
@@ -88,29 +88,27 @@ public class MapsActivity extends FragmentActivity implements
         displayLocation();
 
         mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
+        mAuthListener = new FirebaseAuth.AuthStateListener()
+        {
             @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(firebaseAuth.getCurrentUser() != null){
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
+            {
+                if (firebaseAuth.getCurrentUser() != null)
+                {
                     userEmail = (TextView) findViewById(R.id.userEmail);
                     userEmail.setText(mAuth.getCurrentUser().getEmail());
                 }
             }
         };
+        loginButton = findViewById(R.id.login);
+        if (mAuth.getCurrentUser() != null)
+        {
+            loginButton.setText(R.string.logout);
+        } else
+        {
+            loginButton.setText(R.string.login);
 
-        logout = (Button) findViewById(R.id.logout);
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mAuth.getCurrentUser() != null) {
-                    mAuth.signOut();
-                    Toast.makeText(MapsActivity.this,"Signing Out",Toast.LENGTH_LONG).show();
-                    userEmail = (TextView) findViewById(R.id.userEmail);
-                    userEmail.setText("None");
-                    logout.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
+        }
     }
 
     @Override
@@ -170,10 +168,21 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapLoginClick(View view)
     {
-        startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-        Button mButton = (Button) findViewById(R.id.logout);
-        if (mAuth.getCurrentUser() != null) {
-            mButton.setVisibility(View.VISIBLE);
+        if (mAuth.getCurrentUser() == null)
+        {
+            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+            if (mAuth.getCurrentUser() != null)
+            {
+                loginButton.setText(R.string.logout);
+            }
+        } else
+        {
+            mAuth.signOut();
+            Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
+            userEmail = (TextView) findViewById(R.id.userEmail);
+            userEmail.setText("None");
+            loginButton.setText(R.string.login);
+
         }
     }
 
@@ -185,7 +194,7 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapPublishClick(View view)
     {
-        if ( null==markerLocation )
+        if (null == markerLocation)
         {
             Toast.makeText(
                     getApplicationContext(),
@@ -327,7 +336,8 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     //start authentication methods
-    protected void onStart(){
+    protected void onStart()
+    {
         super.onStart();
 
         mAuth.addAuthStateListener(mAuthListener);
