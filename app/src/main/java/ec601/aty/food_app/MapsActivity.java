@@ -23,6 +23,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +60,7 @@ public class MapsActivity extends FragmentActivity implements
     private FirebaseAuth.AuthStateListener mAuthListener;
     private Button loginButton;
     private TextView userEmail;
+    private EditText radiusText;
 
 
     @Override
@@ -101,13 +103,12 @@ public class MapsActivity extends FragmentActivity implements
             }
         };
         loginButton = findViewById(R.id.login);
-        if (mAuth.getCurrentUser() != null)
-        {
-            loginButton.setText(R.string.logout);
-        } else
+        if (mAuth.getCurrentUser() == null)
         {
             loginButton.setText(R.string.login);
-
+        } else
+        {
+            loginButton.setText(R.string.logout);
         }
     }
 
@@ -179,8 +180,8 @@ public class MapsActivity extends FragmentActivity implements
         {
             mAuth.signOut();
             Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
-            userEmail = (TextView) findViewById(R.id.userEmail);
-            userEmail.setText("None");
+            userEmail = findViewById(R.id.userEmail);
+            userEmail.setText(R.string.none);
             loginButton.setText(R.string.login);
 
         }
@@ -206,6 +207,21 @@ public class MapsActivity extends FragmentActivity implements
         FirebaseUtils.pushPointData(refKey, "Hello, World!");
     }
 
+    public void onMapFindLocationsClick(View view)
+    {
+        // radiusText is what you can use for the query.
+        radiusText = findViewById(R.id.radiusText);
+
+        if (((radiusText.getText().toString()).equals("")) || (Integer.parseInt(radiusText.getText().toString()) == 0))
+        {
+            Toast.makeText(MapsActivity.this, "Please enter a non-zero value", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        /* Do stuff here */
+        int x = 5 + 4;
+
+    }
     @Override
     public void onMapLongClick(LatLng point)
     {

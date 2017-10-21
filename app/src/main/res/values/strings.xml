@@ -7,4 +7,7 @@
     <string name="logout">Logout</string>
     <string name="userEmail">None</string>
     <string name="google_maps_key">AIzaSyAAYg0aVAVlLt96WA9EG6vojFadDnB3_90</string>
+    <string name="none">None</string>
+    <string name="query_locations">Find locations</string>
+    <string name="query_radius">Location Distance</string>
 </resources>

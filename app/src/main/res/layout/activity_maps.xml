@@ -12,5 +12,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               tools:context="ec601.aty.food_app.MapsActivity"/>
-    <include layout="@layout/content_main"/>
+
+    <include
+        layout="@layout/content_main"/>
 </RelativeLayout>
