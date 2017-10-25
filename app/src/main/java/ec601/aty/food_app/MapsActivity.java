@@ -215,13 +215,25 @@ public class MapsActivity extends FragmentActivity implements
         // radiusText is what you can use for the query.
         radiusText = findViewById(R.id.radiusText);
 
-        if (((radiusText.getText().toString()).equals("")) || (Integer.parseInt(radiusText.getText().toString()) == 0))
+        if (((radiusText.getText().toString()).equals("")))
         {
             GeoFireUtils.radiusGeoQuery(mMap);
         }
+        else if ( Double.parseDouble(radiusText.getText().toString()) > 20.0)
+        {
+            Toast.makeText(
+                    getApplicationContext(),
+                    "The maximum query distance is 20 km",
+                    Toast.LENGTH_SHORT).show();
 
-        GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, Double.parseDouble(radiusText.toString()));
-        GeoFireUtils.radiusGeoQuery(mMap);
+            GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, 20);
+            GeoFireUtils.radiusGeoQuery(mMap);
+        }
+        else
+        {
+            GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, Double.parseDouble(radiusText.toString()));
+            GeoFireUtils.radiusGeoQuery(mMap);
+        }
     }
     @Override
     public void onMapLongClick(LatLng point)
