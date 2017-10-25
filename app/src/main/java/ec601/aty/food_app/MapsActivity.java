@@ -55,7 +55,6 @@ public class MapsActivity extends FragmentActivity implements
     private MapPoint markerLocation;
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
-    public static Map<String, LatLng> geofireKeysLatLngMap = new HashMap<>();
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private Button loginButton;
@@ -102,11 +101,14 @@ public class MapsActivity extends FragmentActivity implements
                 }
             }
         };
+
         loginButton = findViewById(R.id.login);
+
         if (mAuth.getCurrentUser() == null)
         {
             loginButton.setText(R.string.login);
-        } else
+        }
+        else
         {
             loginButton.setText(R.string.logout);
         }
@@ -176,14 +178,14 @@ public class MapsActivity extends FragmentActivity implements
             {
                 loginButton.setText(R.string.logout);
             }
-        } else
+        }
+        else
         {
             mAuth.signOut();
             Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
             userEmail = findViewById(R.id.userEmail);
             userEmail.setText(R.string.none);
             loginButton.setText(R.string.login);
-
         }
     }
 
@@ -203,8 +205,14 @@ public class MapsActivity extends FragmentActivity implements
                     Toast.LENGTH_SHORT).show();
             return;
         }
+
         String refKey = GeoFireUtils.pushLocationToGeofire(markerLocation.getCoordinates());
         FirebaseUtils.pushPointData(refKey, "Hello, World!");
+
+        Toast.makeText(
+                getApplicationContext(),
+                "Published point!",
+                Toast.LENGTH_SHORT).show();
     }
 
     public void onMapFindLocationsClick(View view)
@@ -212,15 +220,25 @@ public class MapsActivity extends FragmentActivity implements
         // radiusText is what you can use for the query.
         radiusText = findViewById(R.id.radiusText);
 
-        if (((radiusText.getText().toString()).equals("")) || (Integer.parseInt(radiusText.getText().toString()) == 0))
+        if (((radiusText.getText().toString()).equals("")))
         {
-            Toast.makeText(MapsActivity.this, "Please enter a non-zero value", Toast.LENGTH_LONG).show();
-            return;
+            GeoFireUtils.radiusGeoQuery(mMap);
         }
+        else if ( Double.parseDouble(radiusText.getText().toString()) > 20.0)
+        {
+            Toast.makeText(
+                    getApplicationContext(),
+                    "The maximum query distance is 20 km",
+                    Toast.LENGTH_SHORT).show();
 
-        /* Do stuff here */
-        int x = 5 + 4;
-
+            GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, 20);
+            GeoFireUtils.radiusGeoQuery(mMap);
+        }
+        else
+        {
+            GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, Double.parseDouble(radiusText.getText().toString()));
+            GeoFireUtils.radiusGeoQuery(mMap);
+        }
     }
     @Override
     public void onMapLongClick(LatLng point)
@@ -328,7 +346,6 @@ public class MapsActivity extends FragmentActivity implements
     public void onCameraIdle()
     {
         GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target);
-        GeoFireUtils.radiusGeoQuery(mMap);
     }
 
     //When connected to API
