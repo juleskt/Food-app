@@ -55,7 +55,6 @@ public class MapsActivity extends FragmentActivity implements
     private MapPoint markerLocation;
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
-    public static Map<String, LatLng> geofireKeysLatLngMap = new HashMap<>();
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private Button loginButton;
@@ -102,11 +101,14 @@ public class MapsActivity extends FragmentActivity implements
                 }
             }
         };
+
         loginButton = findViewById(R.id.login);
+
         if (mAuth.getCurrentUser() == null)
         {
             loginButton.setText(R.string.login);
-        } else
+        }
+        else
         {
             loginButton.setText(R.string.logout);
         }
@@ -176,7 +178,8 @@ public class MapsActivity extends FragmentActivity implements
             {
                 loginButton.setText(R.string.logout);
             }
-        } else
+        }
+        else
         {
             mAuth.signOut();
             Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
@@ -214,13 +217,11 @@ public class MapsActivity extends FragmentActivity implements
 
         if (((radiusText.getText().toString()).equals("")) || (Integer.parseInt(radiusText.getText().toString()) == 0))
         {
-            Toast.makeText(MapsActivity.this, "Please enter a non-zero value", Toast.LENGTH_LONG).show();
-            return;
+            GeoFireUtils.radiusGeoQuery(mMap);
         }
 
-        /* Do stuff here */
-        int x = 5 + 4;
-
+        GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, Double.parseDouble(radiusText.toString()));
+        GeoFireUtils.radiusGeoQuery(mMap);
     }
     @Override
     public void onMapLongClick(LatLng point)
@@ -328,7 +329,6 @@ public class MapsActivity extends FragmentActivity implements
     public void onCameraIdle()
     {
         GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target);
-        GeoFireUtils.radiusGeoQuery(mMap);
     }
 
     //When connected to API
