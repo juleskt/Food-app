@@ -10,4 +10,11 @@
     <string name="none">None</string>
     <string name="query_locations">Find locations</string>
     <string name="query_radius">Location Distance</string>
+    <string name="organization">Name of Organization</string>
+    <string name="account_type">Type of Account</string>
+    <string name="register">Register</string>
+    <string-array name="account_types">
+        <item>Producer</item>
+        <item>Consumer</item>
+    </string-array>
 </resources>
