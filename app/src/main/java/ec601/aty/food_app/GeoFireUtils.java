@@ -14,14 +14,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
+import static ec601.aty.food_app.FirebaseUtils.getMapPointsFromKeys;
 
 public class GeoFireUtils
 {
     private static final String GEOFIRE_NODE_PATH = "geoFireAyy";
     private static GeoQuery geoQuery;
-    private static Map<String, LatLng> geofireKeysLatLngMap = new HashMap<>();
+    private static List<String> geofireKeysList = new ArrayList<>();
 
     public static String pushLocationToGeofire(LatLng latLng)
     {
@@ -49,7 +52,7 @@ public class GeoFireUtils
 
     public static void setGeoQueryLocation(LatLng centerLatLng)
     {
-        setGeoQueryLocation(centerLatLng, 1);
+        setGeoQueryLocation(centerLatLng, 2);
     }
 
     public static void setGeoQueryLocation(LatLng centerLatLng, double queryRadius)
@@ -61,7 +64,7 @@ public class GeoFireUtils
 
     public static void radiusGeoQuery(GoogleMap mMap)
     {
-        geofireKeysLatLngMap.clear();
+        geofireKeysList.clear();
         mMap.clear();
 
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener()
@@ -69,7 +72,7 @@ public class GeoFireUtils
             @Override
             public void onKeyEntered(String key, GeoLocation location)
             {
-                geofireKeysLatLngMap.put(key, new LatLng(location.latitude, location.longitude));
+                geofireKeysList.add(key);
             }
 
             @Override
@@ -86,7 +89,7 @@ public class GeoFireUtils
             public void onGeoQueryReady()
             {
                 geoQuery.removeAllListeners();
-                displayGeoQueryResultsOnMap(mMap);
+                displayGeoQueryResultsOnMap(mMap, geofireKeysList);
             }
 
             @Override
@@ -96,14 +99,16 @@ public class GeoFireUtils
         });
     }
 
-    private static void displayGeoQueryResultsOnMap(GoogleMap mMap)
+    private static void displayGeoQueryResultsOnMap(GoogleMap mMap, List<String> geofireKeysList)
     {
+        Log.i("Sup", "Brooo");
+        List<MapPoint> mapPoints = FirebaseUtils.getMapPointsFromKeys(geofireKeysList);
         // Do some relation with Firebase objects to get actual data
-        geofireKeysLatLngMap.forEach((key, value) ->
+        mapPoints.forEach(value ->
         {
             mMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(value.latitude, value.longitude))
-                    .title("test")
+                    .position(value.getCoordinates())
+                    .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(value.getExpiryUnixTime()))
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
         });
     }

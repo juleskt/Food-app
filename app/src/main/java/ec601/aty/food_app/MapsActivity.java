@@ -11,6 +11,7 @@ import android.os.Bundle;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -20,7 +21,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 import android.location.Location;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,13 +30,6 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -52,7 +45,7 @@ public class MapsActivity extends FragmentActivity implements
     // Google client to interact with Google API
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation = null;
-    private MapPoint markerLocation;
+    private MapPoint currentMapPoint = null;
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
     private FirebaseAuth mAuth;
@@ -132,9 +125,9 @@ public class MapsActivity extends FragmentActivity implements
 
             if (mLastLocation != null)
             {
-                double latitude = mLastLocation.getLatitude();
-                double longitude = mLastLocation.getLongitude();
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 14.0f));
+                LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
+                mMap.animateCamera(cameraUpdate);
             } else
             {
 
@@ -161,7 +154,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapClick(LatLng point)
     {
-        markerLocation = new MapPoint(new LatLng(point.latitude, point.longitude));
+        currentMapPoint = new MapPoint(new LatLng(point.latitude, point.longitude));
         mMap.addMarker(new MarkerOptions()
                 .position(point)
                 .title("You are here")
@@ -191,13 +184,13 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapClearClick(View view)
     {
-        markerLocation = null;
+        currentMapPoint = null;
         mMap.clear();
     }
 
     public void onMapPublishClick(View view)
     {
-        if (null == markerLocation)
+        if (null == currentMapPoint)
         {
             Toast.makeText(
                     getApplicationContext(),
@@ -206,13 +199,20 @@ public class MapsActivity extends FragmentActivity implements
             return;
         }
 
-        String refKey = GeoFireUtils.pushLocationToGeofire(markerLocation.getCoordinates());
-        FirebaseUtils.pushPointData(refKey, "Hello, World!");
+        long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
+
+        currentMapPoint.setCreatedUnixTime(currentCreatedTime);
+        currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
+
+        String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
+        FirebaseUtils.pushPointData(refKey, currentMapPoint);
 
         Toast.makeText(
                 getApplicationContext(),
                 "Published point!",
                 Toast.LENGTH_SHORT).show();
+
+        currentMapPoint = null;
     }
 
     public void onMapFindLocationsClick(View view)
@@ -222,6 +222,7 @@ public class MapsActivity extends FragmentActivity implements
 
         if (((radiusText.getText().toString()).equals("")))
         {
+            GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target);
             GeoFireUtils.radiusGeoQuery(mMap);
         }
         else if ( Double.parseDouble(radiusText.getText().toString()) > 20.0)
@@ -313,8 +314,7 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults)
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
     {
         switch (requestCode)
         {
@@ -372,7 +372,6 @@ public class MapsActivity extends FragmentActivity implements
     protected void onStart()
     {
         super.onStart();
-
         mAuth.addAuthStateListener(mAuthListener);
     }
 }

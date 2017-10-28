@@ -2,14 +2,14 @@ package ec601.aty.food_app;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.GregorianCalendar;
-
 public class MapPoint
 {
     private LatLng coordinates;
     private String description;
-    private GregorianCalendar createdTime;
-    private GregorianCalendar expiryTime;
+    private long createdUnixTime;
+    private long expiryUnixTime;
+
+    public MapPoint() {}
 
     public MapPoint(LatLng coordinates)
     {
@@ -22,11 +22,11 @@ public class MapPoint
         this.coordinates = coordinates;
     }
 
-    public MapPoint(LatLng coordinates, String description, GregorianCalendar createdTime, GregorianCalendar expiryTime)
+    public MapPoint(LatLng coordinates, String description, long createdUnixTime, long expiryUnixTime)
     {
         this.description = description;
-        this.createdTime = createdTime;
-        this.expiryTime = expiryTime;
+        this.createdUnixTime = createdUnixTime;
+        this.expiryUnixTime = expiryUnixTime;
         this.coordinates = coordinates;
     }
 
@@ -50,23 +50,23 @@ public class MapPoint
         this.coordinates = coordinates;
     }
 
-    public GregorianCalendar getCreatedTime()
+    public long getCreatedUnixTime()
     {
-        return this.createdTime;
+        return this.createdUnixTime;
     }
 
-    public void setCreatedTime(GregorianCalendar createdTime)
+    public void setCreatedUnixTime(long createdUnixTime)
     {
-        this.createdTime = createdTime;
+        this.createdUnixTime = createdUnixTime;
     }
 
-    public GregorianCalendar getExpiryTime()
+    public long getExpiryUnixTime()
     {
-        return this.expiryTime;
+        return this.expiryUnixTime;
     }
 
-    public void setExpiryTime(GregorianCalendar expiryTime)
+    public void setExpiryUnixTime(long expiryUnixTime)
     {
-        this.expiryTime = expiryTime;
+        this.expiryUnixTime = expiryUnixTime;
     }
 }
