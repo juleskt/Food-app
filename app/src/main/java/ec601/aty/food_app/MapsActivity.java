@@ -94,7 +94,7 @@ public class MapsActivity extends FragmentActivity implements
             }
         };
 
-        loginButton = findViewById(R.id.login);
+        loginButton = findViewById(R.id.loginout);
 
         if (mAuth.getCurrentUser() == null)
         {

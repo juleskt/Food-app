@@ -38,7 +38,6 @@ public class LoginActivity extends AppCompatActivity{
         setContentView(R.layout.activity_login);
 
         googleBtn = (SignInButton) findViewById(R.id.googleBtn);
-        Toast.makeText(LoginActivity.this,"Hello!",Toast.LENGTH_LONG).show();
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -98,6 +97,9 @@ public class LoginActivity extends AppCompatActivity{
             } else {
                 // Google Sign In failed, update UI appropriately
                 // ...
+            }
+            if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
             }
         }
     }
