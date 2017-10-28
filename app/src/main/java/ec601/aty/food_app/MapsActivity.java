@@ -185,7 +185,7 @@ public class MapsActivity extends FragmentActivity implements
     public void onMapClearClick(View view)
     {
         currentMapPoint = null;
-        mMap.clear();
+        MapUtils.clearMap();
     }
 
     public void onMapPublishClick(View view)

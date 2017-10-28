@@ -22,4 +22,8 @@ public class MapUtils {
                 mMap.addMarker(markerOption);
             });
     }
+
+    public static void clearMap() {
+        mMap.clear();
+    }
 }
