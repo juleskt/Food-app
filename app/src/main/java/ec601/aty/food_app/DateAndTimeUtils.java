@@ -18,7 +18,7 @@ public class DateAndTimeUtils {
 
     public static String getLocalFormattedDateFromUnixTime(long unixTime) {
        // Date date = new Date(unixTime);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss z");
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss z");
         sdf.setTimeZone(TimeZone.getDefault());
         return sdf.format(unixTime);
     }

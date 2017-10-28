@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static ec601.aty.food_app.FirebaseUtils.getMapPointsFromKeys;
-
 public class GeoFireUtils
 {
     private static final String GEOFIRE_NODE_PATH = "geoFireAyy";
@@ -89,7 +87,7 @@ public class GeoFireUtils
             public void onGeoQueryReady()
             {
                 geoQuery.removeAllListeners();
-                displayGeoQueryResultsOnMap(mMap, geofireKeysList);
+                displayGeoQueryResultsOnMap(geofireKeysList);
             }
 
             @Override
@@ -99,17 +97,7 @@ public class GeoFireUtils
         });
     }
 
-    private static void displayGeoQueryResultsOnMap(GoogleMap mMap, List<String> geofireKeysList)
-    {
-        Log.i("Sup", "Brooo");
-        List<MapPoint> mapPoints = FirebaseUtils.getMapPointsFromKeys(geofireKeysList);
-        // Do some relation with Firebase objects to get actual data
-        mapPoints.forEach(value ->
-        {
-            mMap.addMarker(new MarkerOptions()
-                    .position(value.getCoordinates())
-                    .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(value.getExpiryUnixTime()))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-        });
+    private static void displayGeoQueryResultsOnMap(List<String> geofireKeysList) {
+        FirebaseUtils.populateMapWithMapPointsFromGeofireKeys(geofireKeysList);
     }
 }

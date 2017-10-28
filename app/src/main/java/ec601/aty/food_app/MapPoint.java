@@ -1,33 +1,22 @@
 package ec601.aty.food_app;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.Exclude;
 
 public class MapPoint
 {
-    private LatLng coordinates;
+    private double latitude;
+    private double longitude;
     private String description;
     private long createdUnixTime;
     private long expiryUnixTime;
 
     public MapPoint() {}
 
-    public MapPoint(LatLng coordinates)
+    public MapPoint(double latitude, double longitude)
     {
-        this.coordinates = coordinates;
-    }
-
-    public MapPoint(LatLng coordinates, String description)
-    {
-        this.description = description;
-        this.coordinates = coordinates;
-    }
-
-    public MapPoint(LatLng coordinates, String description, long createdUnixTime, long expiryUnixTime)
-    {
-        this.description = description;
-        this.createdUnixTime = createdUnixTime;
-        this.expiryUnixTime = expiryUnixTime;
-        this.coordinates = coordinates;
+       this.latitude = latitude;
+       this.longitude = longitude;
     }
 
     public String getDescription()
@@ -40,14 +29,17 @@ public class MapPoint
         this.description = description;
     }
 
+    @Exclude
     public LatLng getCoordinates()
     {
-        return coordinates;
+        return new LatLng(latitude, longitude);
     }
 
+    @Exclude
     public void setCoordinates(LatLng coordinates)
     {
-        this.coordinates = coordinates;
+        this.latitude = coordinates.latitude;
+        this.longitude = coordinates.longitude;
     }
 
     public long getCreatedUnixTime()
@@ -68,5 +60,22 @@ public class MapPoint
     public void setExpiryUnixTime(long expiryUnixTime)
     {
         this.expiryUnixTime = expiryUnixTime;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 }

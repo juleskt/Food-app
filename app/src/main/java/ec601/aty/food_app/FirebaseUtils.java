@@ -2,6 +2,8 @@ package ec601.aty.food_app;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -22,23 +24,15 @@ public class FirebaseUtils {
         ref.setValue(value);
     }
 
-    public static List<MapPoint> getMapPointsFromKeys(List<String> keys) {
-        List<MapPoint> mapPoints = new ArrayList<>();
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference ref = database.child(POINT_DATA_NODE_PATH);
-
-        Log.i("Why must you hate us?", "?????");
+    public static void populateMapWithMapPointsFromGeofireKeys(List<String> keys) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference(POINT_DATA_NODE_PATH);
 
         keys.forEach(key -> {
-            Query mapPointsFromGeoPoints = ref.equalTo(key);
-
-            mapPointsFromGeoPoints.addListenerForSingleValueEvent(new ValueEventListener() {
+            ref.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot snapShotMapPoint : dataSnapshot.getChildren()) {
-                        Log.i("Heyoo", "Huh?");
-                        mapPoints.add(snapShotMapPoint.getValue(MapPoint.class));
-                    }
+                    displayMapPointOnMap(dataSnapshot.getValue(MapPoint.class));
                 }
 
                 @Override
@@ -47,7 +41,12 @@ public class FirebaseUtils {
                 }
             });
         });
+    }
 
-        return mapPoints;
+    private static void displayMapPointOnMap(MapPoint mapPoint) {
+        MapUtils.addMarkerToMap(new MarkerOptions()
+            .position(mapPoint.getCoordinates())
+            .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(mapPoint.getExpiryUnixTime()))
+            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
     }
 }

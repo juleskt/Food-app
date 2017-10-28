@@ -79,7 +79,6 @@ public class MapsActivity extends FragmentActivity implements
 
         mapFragment.getMapAsync(this);
         setUpMapIfNeeded();
-        displayLocation();
 
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener()
@@ -148,13 +147,14 @@ public class MapsActivity extends FragmentActivity implements
     public void onMapReady(GoogleMap googleMap)
     {
         mMap = googleMap;
+        MapUtils.setMap(mMap);
         setUpMap();
     }
 
     @Override
     public void onMapClick(LatLng point)
     {
-        currentMapPoint = new MapPoint(new LatLng(point.latitude, point.longitude));
+        currentMapPoint = new MapPoint(point.latitude, point.longitude);
         mMap.addMarker(new MarkerOptions()
                 .position(point)
                 .title("You are here")
