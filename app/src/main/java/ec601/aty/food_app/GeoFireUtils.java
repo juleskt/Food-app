@@ -63,7 +63,7 @@ public class GeoFireUtils
     public static void radiusGeoQuery(GoogleMap mMap)
     {
         geofireKeysList.clear();
-        mMap.clear();
+        MapUtils.clearMap();
 
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener()
         {
