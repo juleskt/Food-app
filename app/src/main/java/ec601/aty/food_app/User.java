@@ -1,16 +1,16 @@
 package ec601.aty.food_app;
 
 
-public class UserUtils {
+public class User {
 
     public String name;
     public String accounttype;
 
-    public UserUtils(){
+    public User(){
 
     }
 
-    public UserUtils(String accounttype, String name){
+    public User(String accounttype, String name){
         this.name = name;
         this.accounttype = accounttype;
     }
