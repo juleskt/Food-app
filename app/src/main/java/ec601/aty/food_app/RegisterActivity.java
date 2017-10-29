@@ -28,7 +28,6 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-
         ref = FirebaseDatabase.getInstance().getReference(USER_DATA_NODE_PATH);
         mAuth = FirebaseAuth.getInstance();
 
@@ -58,7 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     protected void registerUser(){
-        User user = new User(typespinner.getSelectedItem().toString(),orgname.getText().toString());
+        User user = new User(User.AccountType.valueOf(typespinner.getSelectedItem().toString().toUpperCase()), orgname.getText().toString());
         ref.child(mAuth.getCurrentUser().getUid()).setValue(user);
         startActivity(new Intent(RegisterActivity.this, MapsActivity.class));
     }

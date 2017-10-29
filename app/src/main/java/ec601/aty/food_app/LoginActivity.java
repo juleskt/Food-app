@@ -41,7 +41,6 @@ public class LoginActivity extends AppCompatActivity{
     private static final String TAG = "MAIN_ACTIVITY";
     private static final String USER_DATA_NODE_PATH = "userData";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
