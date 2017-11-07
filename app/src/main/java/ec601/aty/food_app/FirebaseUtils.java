@@ -1,18 +1,13 @@
 package ec601.aty.food_app;
 
-import android.util.Log;
-
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FirebaseUtils {
@@ -28,7 +23,7 @@ public class FirebaseUtils {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(POINT_DATA_NODE_PATH);
 
-        keys.forEach(key -> {
+        keys.forEach(key ->
             ref.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -36,11 +31,9 @@ public class FirebaseUtils {
                 }
 
                 @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-        });
+                public void onCancelled(DatabaseError databaseError) {}
+            })
+        );
     }
 
     private static void displayMapPointOnMap(MapPoint mapPoint) {

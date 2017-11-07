@@ -3,7 +3,6 @@ package ec601.aty.food_app;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,19 +38,16 @@ public class RegisterActivity extends AppCompatActivity {
 
         orgname = (EditText) findViewById(R.id.nameinput);
         regbutton = findViewById(R.id.register);
-        regbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (orgname.getText().toString().length()==0){
-                    orgname.setError("Please enter the name of your organization");
-                    orgname.requestFocus();
-                }
-                else if (typespinner.getSelectedItem().toString()==null){
-                    Toast.makeText(RegisterActivity.this, "Please select an account type", Toast.LENGTH_LONG).show();
-                }
-                else{
-                    registerUser();
-                }
+        regbutton.setOnClickListener(view -> {
+            if (orgname.getText().toString().length()==0){
+                orgname.setError("Please enter the name of your organization");
+                orgname.requestFocus();
+            }
+            else if (typespinner.getSelectedItem().toString()==null){
+                Toast.makeText(RegisterActivity.this, "Please select an account type", Toast.LENGTH_LONG).show();
+            }
+            else{
+                registerUser();
             }
         });
     }

@@ -1,7 +1,6 @@
 package ec601.aty.food_app;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
@@ -18,9 +17,9 @@ public class MapUtils {
     }
 
     public static void addMarkersToMap(List<MarkerOptions> markerOptions) {
-        markerOptions.forEach(markerOption -> {
-                mMap.addMarker(markerOption);
-            });
+        markerOptions.forEach(markerOption ->
+            mMap.addMarker(markerOption)
+        );
     }
 
     public static void clearMap() {

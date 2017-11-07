@@ -1,12 +1,15 @@
 package ec601.aty.food_app;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.text.DateFormat;
 import java.util.TimeZone;
+
+import static java.text.DateFormat.getDateTimeInstance;
 
 public class DateAndTimeUtils {
 
     private static final int MILLISECONDS_IN_HOUR = 3600000;
+    private static final int SECONDS_IN_HOUR = 3600;
+    private static final int MILLISECONDS_TO_SECONDS= 3600;
 
     public static long getCurrentUnixTime() {
         return System.currentTimeMillis();
@@ -17,9 +20,12 @@ public class DateAndTimeUtils {
     }
 
     public static String getLocalFormattedDateFromUnixTime(long unixTime) {
-       // Date date = new Date(unixTime);
-        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss z");
+        DateFormat sdf = getDateTimeInstance();
         sdf.setTimeZone(TimeZone.getDefault());
         return sdf.format(unixTime);
+    }
+
+    public static boolean checkIfUnixTimeIsExpired(long unixTime) {
+        return getCurrentUnixTime() > unixTime;
     }
 }

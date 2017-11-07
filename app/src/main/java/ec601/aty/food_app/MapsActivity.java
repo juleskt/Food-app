@@ -42,18 +42,19 @@ public class MapsActivity extends FragmentActivity implements
 {
 
     public static GoogleMap mMap;
-    // Google client to interact with Google API
     private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation = null;
-    private MapPoint currentMapPoint = null;
-    private final static int FINE_LOCATION_PERMISSION = 1;
-    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+
+    private Location mLastLocation = null;
+    private MapPoint currentMapPoint = null;
+
+    private final static int FINE_LOCATION_PERMISSION = 1;
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
+
     private Button loginButton;
     private TextView userEmail;
     private EditText radiusText;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -179,6 +180,7 @@ public class MapsActivity extends FragmentActivity implements
             userEmail = findViewById(R.id.userEmail);
             userEmail.setText(R.string.none);
             loginButton.setText(R.string.login);
+            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         }
     }
 
@@ -255,7 +257,7 @@ public class MapsActivity extends FragmentActivity implements
             // Live locations
             mMap.setMyLocationEnabled(true);
             // Remove buildings
-            mMap.setBuildingsEnabled(false);
+          //  mMap.setBuildingsEnabled(false);
             // Turn off basic menu
             mMap.getUiSettings().setMapToolbarEnabled(false);
             // Set up map click listeners
@@ -338,9 +340,7 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onCameraMoveStarted(int reason)
-    {
-    }
+    public void onCameraMoveStarted(int reason) {}
 
     @Override
     public void onCameraIdle()
@@ -357,9 +357,7 @@ public class MapsActivity extends FragmentActivity implements
 
     // Spam retry, lol maybe want to have better behavior in the future
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult)
-    {
-    }
+    public void onConnectionFailed(ConnectionResult connectionResult) {}
 
     //When disconnected, try to recon
     @Override
