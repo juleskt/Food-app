@@ -89,6 +89,14 @@ public class LoginActivity extends AppCompatActivity{
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot data: dataSnapshot.getChildren()){
                     if (data.getKey().equals(mAuth.getCurrentUser().getUid())) {
+                        switch (dataSnapshot.getValue(User.class).getAccountType()) {
+                            case PRODUCER: {
+                                break;
+                            }
+                            case CONSUMER: {
+                                break;
+                            }
+                        }
                         return;
                     } else {
                         continue;
