@@ -6,8 +6,8 @@ public class User {
         CONSUMER
     }
 
-    private String name;
-    private AccountType accountType;
+    protected String name;
+    protected AccountType accountType;
 
     public User(){
 

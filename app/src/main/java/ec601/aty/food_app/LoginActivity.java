@@ -36,6 +36,7 @@ public class LoginActivity extends AppCompatActivity{
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final String TAG = "MAIN_ACTIVITY";
     private static final String USER_DATA_NODE_PATH = "userData";
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -43,18 +43,31 @@ public class RegisterActivity extends AppCompatActivity {
                 orgname.setError("Please enter the name of your organization");
                 orgname.requestFocus();
             }
-            else if (typespinner.getSelectedItem().toString()==null){
+            else if (typespinner.getSelectedItem().toString() == null) {
                 Toast.makeText(RegisterActivity.this, "Please select an account type", Toast.LENGTH_LONG).show();
             }
-            else{
+            else {
                 registerUser();
             }
         });
     }
 
     protected void registerUser(){
-        User user = new User(User.AccountType.valueOf(typespinner.getSelectedItem().toString().toUpperCase()), orgname.getText().toString());
+        User.AccountType accountType = User.AccountType.valueOf(typespinner.getSelectedItem().toString().toUpperCase());
+        User user = new User(accountType, orgname.getText().toString());
         ref.child(mAuth.getCurrentUser().getUid()).setValue(user);
+
+        switch (accountType) {
+            case PRODUCER: {
+                UserUtils.addProducer(mAuth.getCurrentUser().getUid(), orgname.getText().toString());
+                break;
+            }
+            case CONSUMER: {
+                UserUtils.addConsumer(mAuth.getCurrentUser().getUid(), orgname.getText().toString());
+                break;
+            }
+        }
+
         startActivity(new Intent(RegisterActivity.this, MapsActivity.class));
     }
 }
