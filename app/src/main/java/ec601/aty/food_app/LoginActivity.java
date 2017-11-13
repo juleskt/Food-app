@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity{
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final String TAG = "MAIN_ACTIVITY";
     private static final String USER_DATA_NODE_PATH = "userData";
-    private User currentUser;
+    public User currentUserSingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,12 +90,20 @@ public class LoginActivity extends AppCompatActivity{
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot data: dataSnapshot.getChildren()){
                     if (data.getKey().equals(mAuth.getCurrentUser().getUid())) {
-                        switch (dataSnapshot.getValue(User.class).getAccountType()) {
+
+                        User foundUser = dataSnapshot.getValue(User.class);
+
+                        switch (foundUser.getAccountType()) {
                             case PRODUCER: {
+                                currentUserSingleton = new ProducerUser(foundUser.getName());
                                 break;
                             }
                             case CONSUMER: {
+                                currentUserSingleton = new ConsumerUser(foundUser.getName());
                                 break;
+                            }
+                            default: {
+                                // whoops
                             }
                         }
                         return;
