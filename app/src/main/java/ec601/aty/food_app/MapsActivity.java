@@ -156,7 +156,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapClick(LatLng point)
     {
-        if (UserUtils.currentUserSingleton instanceof ProducerUser) {
+        if (UserUtils.isCurrentUserProducer()) {
             currentMapPoint = new MapPoint(point.latitude, point.longitude);
             mMap.addMarker(new MarkerOptions()
                     .position(point)
@@ -194,7 +194,7 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapPublishClick(View view)
     {
-        if (UserUtils.currentUserSingleton instanceof ProducerUser) {
+        if (UserUtils.isCurrentUserProducer()) {
             if (null == currentMapPoint) {
                 Toast.makeText(
                         getApplicationContext(),

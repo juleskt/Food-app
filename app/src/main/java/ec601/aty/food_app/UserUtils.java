@@ -17,6 +17,20 @@ public class UserUtils {
 
     public static User currentUserSingleton;
 
+    public static boolean isProducer(User user) {
+        return user instanceof ProducerUser;
+    }
+    public static boolean isConsumer(User user) {
+        return user instanceof ConsumerUser;
+    }
+
+    public static boolean isCurrentUserProducer() {
+        return currentUserSingleton instanceof ProducerUser;
+    }
+    public static boolean isCurrentUserConsumer() {
+        return currentUserSingleton instanceof ConsumerUser;
+    }
+
     public static void addProducer(String key, String name) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(PRODUCER_DATA_NODE_PATH).child(key);
@@ -32,7 +46,7 @@ public class UserUtils {
     public static void searchForForUserTypeData(FirebaseAuth mAuth, User userToFind) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-        if (userToFind instanceof ProducerUser) {
+        if (isProducer(userToFind)) {
             DatabaseReference ref = database.getReference(PRODUCER_DATA_NODE_PATH);
             ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -45,7 +59,7 @@ public class UserUtils {
 
                 }
             });
-        } else if (userToFind instanceof ConsumerUser) {
+        } else if (isConsumer(userToFind)) {
             DatabaseReference ref = database.getReference(CONSUMER_DATA_NODE_PATH);
             ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
