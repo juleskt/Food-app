@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MapsActivity extends FragmentActivity implements
@@ -82,8 +84,7 @@ public class MapsActivity extends FragmentActivity implements
         setUpMapIfNeeded();
 
         mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener()
-        {
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
             {
@@ -115,7 +116,7 @@ public class MapsActivity extends FragmentActivity implements
         setUpMapIfNeeded();
     }
 
-    //Update the live location dot
+    // Update the live location dot
     private void displayLocation()
     {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
@@ -124,15 +125,15 @@ public class MapsActivity extends FragmentActivity implements
             mLastLocation = LocationServices.FusedLocationApi
                     .getLastLocation(mGoogleApiClient);
 
-            if (mLastLocation != null)
-            {
-                LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
-                mMap.animateCamera(cameraUpdate);
-            } else
-            {
-
-            }
+            LocationServices.getFusedLocationProviderClient(this).getLastLocation()
+                .addOnSuccessListener(this, (location) -> {
+                    if (location != null ) {
+                        LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                        mMap.animateCamera(cameraUpdate);
+                    }
+                }
+            );
         }
     }
 
@@ -269,7 +270,6 @@ public class MapsActivity extends FragmentActivity implements
             // Set up map movement listeners
             mMap.setOnCameraIdleListener(this);
             mMap.setOnCameraMoveStartedListener(this);
-            displayLocation();
         }
     }
 
@@ -316,6 +316,8 @@ public class MapsActivity extends FragmentActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
+
+        displayLocation();
     }
 
     @Override
@@ -355,7 +357,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onConnected(Bundle bundle)
     {
-        displayLocation();
+       // displayLocation();
     }
 
     // Spam retry, lol maybe want to have better behavior in the future

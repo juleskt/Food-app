@@ -107,8 +107,6 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         }
                         return;
-                    } else {
-                        continue;
                     }
                 }
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
