@@ -48,7 +48,6 @@ public class MapsActivity extends FragmentActivity implements
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    private Location mLastLocation = null;
     private MapPoint currentMapPoint = null;
 
     private final static int FINE_LOCATION_PERMISSION = 1;
@@ -122,9 +121,6 @@ public class MapsActivity extends FragmentActivity implements
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED)
         {
-            mLastLocation = LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient);
-
             LocationServices.getFusedLocationProviderClient(this).getLastLocation()
                 .addOnSuccessListener(this, (location) -> {
                     if (location != null ) {
@@ -330,16 +326,14 @@ public class MapsActivity extends FragmentActivity implements
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 {
-
+                    // @TODO Some checking
                 } else
                 {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                    // @TODO permission denied, boo! Disable the functionality that depends on this permission.
                 }
                 return;
             }
-            // other 'case' lines to check for other
-            // permissions this app might request
+            // @TODO other 'case' lines to check for other permissions this app might request
         }
     }
 

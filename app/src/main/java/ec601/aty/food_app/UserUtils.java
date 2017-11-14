@@ -56,7 +56,7 @@ public class UserUtils {
 
                 @Override
                 public void onCancelled(DatabaseError firebaseError) {
-
+                    // @TODO: No network connectivity
                 }
             });
         } else if (isConsumer(userToFind)) {
@@ -69,14 +69,14 @@ public class UserUtils {
 
                 @Override
                 public void onCancelled(DatabaseError firebaseError) {
-
+                    // @TODO: No network connectivity
                 }
             });
         }
     }
 
     // Pretty hacky, but need a way to call searchForUser from MapsActivity to handle already logged in people
-    // Essentially same functionality as LoginActivity::searchForExistingUser
+    // Essentially same functionality as LoginActivity::searchForExistingUser but called from static context
     public static void getCurrentUserDetails(FirebaseAuth mAuth) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(USER_DATA_NODE_PATH);
@@ -104,7 +104,7 @@ public class UserUtils {
 
             @Override
             public void onCancelled(DatabaseError firebaseError) {
-
+                // @TODO: No network connectivity
             }
         });
     }

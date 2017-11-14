@@ -29,19 +29,12 @@ public class GeoFireUtils
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference(GEOFIRE_NODE_PATH);
         String firebasePushKey = FirebaseDatabase.getInstance().getReference(GEOFIRE_NODE_PATH).push().getKey();
         GeoFire geoFireRef = new GeoFire(ref);
-        geoFireRef.setLocation(firebasePushKey, new GeoLocation(latLng.latitude, latLng.longitude), new GeoFire.CompletionListener()
+        geoFireRef.setLocation(firebasePushKey, new GeoLocation(latLng.latitude, latLng.longitude), (key, error) ->
         {
-            @Override
-            public void onComplete(String key, DatabaseError error)
+            if (error != null)
             {
-                if (error == null)
-                {
-
-                } else
-                {
-                    System.err.println("There was an error saving the location to GeoFire: " + error);
-
-                }
+                // @TODO Handle Exception
+                System.err.println("There was an error saving the location to GeoFire: " + error);
             }
         });
 

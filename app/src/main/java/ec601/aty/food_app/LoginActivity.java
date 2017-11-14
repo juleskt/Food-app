@@ -103,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
                                 break;
                             }
                             default: {
-                                // whoops
+                                // @TODO whoops
                             }
                         }
                         return;
@@ -136,7 +136,7 @@ public class LoginActivity extends AppCompatActivity {
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
             } else {
-                // Google Sign In failed, update UI appropriately
+                // @TODO Google Sign In failed, update UI appropriately
                 // ...
             }
             if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
@@ -164,8 +164,6 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
-
-                        // ...
                     }
                 });
     }
