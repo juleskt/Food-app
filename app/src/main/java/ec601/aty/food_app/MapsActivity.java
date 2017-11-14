@@ -132,8 +132,7 @@ public class MapsActivity extends FragmentActivity implements
                         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
                         mMap.animateCamera(cameraUpdate);
                     }
-                }
-            );
+                });
         }
     }
 
