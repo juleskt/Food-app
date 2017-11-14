@@ -99,7 +99,7 @@ public class MapsActivity extends FragmentActivity implements
 
         if (mAuth.getCurrentUser() == null)
         {
-            loginButton.setText(R.string.login);
+            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         }
         else
         {

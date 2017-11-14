@@ -94,11 +94,13 @@ public class LoginActivity extends AppCompatActivity {
                         User foundUser = dataSnapshot.getValue(User.class);
                         switch (foundUser.getAccountType()) {
                             case PRODUCER: {
-                                currentUserSingleton = new ProducerUser(foundUser.getName());
+                                currentUserSingleton = new ProducerUser(foundUser);
+                                UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton, mAuth.getCurrentUser().getUid());
                                 break;
                             }
                             case CONSUMER: {
-                                currentUserSingleton = new ConsumerUser(foundUser.getName());
+                                currentUserSingleton = new ConsumerUser(foundUser);
+                                UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton, mAuth.getCurrentUser().getUid());
                                 break;
                             }
                             default: {

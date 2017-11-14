@@ -14,6 +14,11 @@ public class ProducerUser extends User {
         this.name = name;
     }
 
+    public ProducerUser(User user) {
+        this.setAccountType(user.getAccountType());
+        this.setName(user.getName());
+    }
+
     public List<String> getLocationKeys() {
         return locationKeys;
     }
