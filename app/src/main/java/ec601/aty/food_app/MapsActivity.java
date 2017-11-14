@@ -104,6 +104,7 @@ public class MapsActivity extends FragmentActivity implements
         else
         {
             loginButton.setText(R.string.logout);
+            UserUtils.getCurrentUserDetails(mAuth);
         }
     }
 
@@ -155,13 +156,14 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapClick(LatLng point)
     {
-        currentMapPoint = new MapPoint(point.latitude, point.longitude);
-        mMap.addMarker(new MarkerOptions()
-                .position(point)
-                .title("You are here")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        if (UserUtils.currentUserSingleton instanceof ProducerUser) {
+            currentMapPoint = new MapPoint(point.latitude, point.longitude);
+            mMap.addMarker(new MarkerOptions()
+                    .position(point)
+                    .title("You are here")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        }
     }
-
 
     public void onMapLoginClick(View view)
     {
@@ -192,29 +194,30 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapPublishClick(View view)
     {
-        if (null == currentMapPoint)
-        {
+        if (UserUtils.currentUserSingleton instanceof ProducerUser) {
+            if (null == currentMapPoint) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        "Please place a marker",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
+
+            currentMapPoint.setCreatedUnixTime(currentCreatedTime);
+            currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
+
+            String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
+            FirebaseUtils.pushPointData(refKey, currentMapPoint);
+
             Toast.makeText(
                     getApplicationContext(),
-                    "Please place a marker",
+                    "Published point!",
                     Toast.LENGTH_SHORT).show();
-            return;
+
+            currentMapPoint = null;
         }
-
-        long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
-
-        currentMapPoint.setCreatedUnixTime(currentCreatedTime);
-        currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
-
-        String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
-        FirebaseUtils.pushPointData(refKey, currentMapPoint);
-
-        Toast.makeText(
-                getApplicationContext(),
-                "Published point!",
-                Toast.LENGTH_SHORT).show();
-
-        currentMapPoint = null;
     }
 
     public void onMapFindLocationsClick(View view)

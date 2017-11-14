@@ -19,6 +19,8 @@ public class ProducerUser extends User {
         this.setName(user.getName());
     }
 
+    public ProducerUser() {}
+
     public List<String> getLocationKeys() {
         return locationKeys;
     }

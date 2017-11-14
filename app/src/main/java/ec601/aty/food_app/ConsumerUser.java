@@ -14,4 +14,6 @@ public class ConsumerUser extends User {
         this.setAccountType(user.getAccountType());
         this.setName(user.getName());
     }
+
+    public ConsumerUser() {}
 }

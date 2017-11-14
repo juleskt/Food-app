@@ -32,11 +32,10 @@ public class LoginActivity extends AppCompatActivity {
     private SignInButton googleBtn;
     private static final int RC_SIGN_IN = 1;
     private GoogleApiClient mGoogleApiClient;
-    private FirebaseAuth mAuth;
+    private static FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static final String TAG = "MAIN_ACTIVITY";
     private static final String USER_DATA_NODE_PATH = "userData";
-    public User currentUserSingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,16 +90,16 @@ public class LoginActivity extends AppCompatActivity {
                 for(DataSnapshot data: dataSnapshot.getChildren()){
                     if (data.getKey().equals(mAuth.getCurrentUser().getUid())) {
 
-                        User foundUser = dataSnapshot.getValue(User.class);
+                        User foundUser = data.getValue(User.class);
                         switch (foundUser.getAccountType()) {
                             case PRODUCER: {
-                                currentUserSingleton = new ProducerUser(foundUser);
-                                UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton, mAuth.getCurrentUser().getUid());
+                                UserUtils.currentUserSingleton = new ProducerUser(foundUser);
+                                UserUtils.searchForForUserTypeData(mAuth, UserUtils.currentUserSingleton);
                                 break;
                             }
                             case CONSUMER: {
-                                currentUserSingleton = new ConsumerUser(foundUser);
-                                UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton, mAuth.getCurrentUser().getUid());
+                                UserUtils.currentUserSingleton = new ConsumerUser(foundUser);
+                                UserUtils.searchForForUserTypeData(mAuth, UserUtils.currentUserSingleton);
                                 break;
                             }
                             default: {
