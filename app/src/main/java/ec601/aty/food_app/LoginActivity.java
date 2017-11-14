@@ -27,7 +27,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class LoginActivity extends AppCompatActivity{
+public class LoginActivity extends AppCompatActivity {
 
     private SignInButton googleBtn;
     private static final int RC_SIGN_IN = 1;
@@ -92,7 +92,6 @@ public class LoginActivity extends AppCompatActivity{
                     if (data.getKey().equals(mAuth.getCurrentUser().getUid())) {
 
                         User foundUser = dataSnapshot.getValue(User.class);
-
                         switch (foundUser.getAccountType()) {
                             case PRODUCER: {
                                 currentUserSingleton = new ProducerUser(foundUser.getName());
