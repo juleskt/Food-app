@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     private static FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private static final String TAG = "MAIN_ACTIVITY";
+    private static final String TAG = "LOGIN_ACTIVITY";
     private static final String USER_DATA_NODE_PATH = "userData";
 
     @Override
@@ -43,7 +43,6 @@ public class LoginActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         googleBtn = (SignInButton) findViewById(R.id.googleBtn);
 
         // Configure Google Sign In
@@ -121,6 +120,8 @@ public class LoginActivity extends AppCompatActivity
                             default:
                             {
                                 // @TODO whoops
+                                Toast.makeText(LoginActivity.this, "Default Case: Account Type", Toast.LENGTH_LONG).show();
+
                             }
                         }
                         return;
@@ -147,7 +148,6 @@ public class LoginActivity extends AppCompatActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN)
         {
@@ -160,7 +160,8 @@ public class LoginActivity extends AppCompatActivity
             } else
             {
                 // @TODO Google Sign In failed, update UI appropriately
-                // ...
+                Toast.makeText(LoginActivity.this, "Google Sign In failed.",
+                        Toast.LENGTH_SHORT).show();
             }
             if (mGoogleApiClient != null && mGoogleApiClient.isConnected())
             {
