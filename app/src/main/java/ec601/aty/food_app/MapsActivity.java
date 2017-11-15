@@ -1,6 +1,8 @@
 package ec601.aty.food_app;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -21,8 +23,10 @@ import com.google.android.gms.maps.model.LatLng;
 
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -99,14 +103,13 @@ public class MapsActivity extends FragmentActivity implements
             UserUtils.getCurrentUserDetails(mAuth);
             if (UserUtils.isCurrentUserProducer())
             {
-                Button locations =  findViewById(R.id.findLocations);
+                Button locations = findViewById(R.id.findLocations);
                 locations.setVisibility(View.GONE);
 
                 EditText radius = findViewById(R.id.radiusText);
                 radius.setVisibility(View.GONE);
 
-            }
-            else
+            } else
             {
                 Button publish = findViewById(R.id.sendLocationToFireBase);
                 publish.setVisibility(View.GONE);
@@ -221,15 +224,40 @@ public class MapsActivity extends FragmentActivity implements
                 return;
             }
 
-            long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
+            final Dialog dialog = new Dialog(MapsActivity.this);
+            dialog.setContentView(R.layout.publish_dialog);
+            dialog.setTitle("Title...");
 
-            currentMapPoint.setCreatedUnixTime(currentCreatedTime);
-            currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
-            currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
 
-            String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
-            UserUtils.addPointForCurrentProducer(refKey, mAuth);
-            FirebaseUtils.pushPointData(refKey, currentMapPoint);
+
+            Spinner unit_spinner = (Spinner) dialog.findViewById(R.id.unit_selection);
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                    R.array.unit_types, android.R.layout.simple_spinner_item);
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            unit_spinner.setAdapter(adapter);
+            Button dialogButton = (Button) dialog.findViewById(R.id.publish_dialog_button);
+            // if button is clicked, close the custom dialog
+            dialogButton.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
+
+//            long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
+//
+//            currentMapPoint.setCreatedUnixTime(currentCreatedTime);
+//            currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
+//            currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
+//
+//            String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
+//            UserUtils.addPointForCurrentProducer(refKey, mAuth);
+//            FirebaseUtils.pushPointData(refKey, currentMapPoint);
 
             Toast.makeText(
                     getApplicationContext(),

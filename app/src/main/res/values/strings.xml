@@ -17,4 +17,9 @@
         <item>Producer</item>
         <item>Consumer</item>
     </string-array>
+    <string-array name="unit_types">
+        <item>Kilograms</item>
+        <item>Pounds</item>
+        <item>Bags</item>
+    </string-array>
 </resources>
