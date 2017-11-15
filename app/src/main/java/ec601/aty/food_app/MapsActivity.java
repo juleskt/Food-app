@@ -109,7 +109,6 @@ public class MapsActivity extends FragmentActivity implements
                 FINE_LOCATION_PERMISSION);
 
         mapFragment.getMapAsync(this);
-        setUpMapIfNeeded();
     }
 
     @Override
@@ -151,6 +150,7 @@ public class MapsActivity extends FragmentActivity implements
         mMap = googleMap;
         MapUtils.setMap(mMap);
         setUpMap();
+        displayLocation();
     }
 
     @Override
@@ -209,6 +209,7 @@ public class MapsActivity extends FragmentActivity implements
             currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
 
             String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
+            UserUtils.addPointForCurrentProducer(refKey, mAuth);
             FirebaseUtils.pushPointData(refKey, currentMapPoint);
 
             Toast.makeText(
@@ -315,8 +316,6 @@ public class MapsActivity extends FragmentActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
-
-        displayLocation();
     }
 
     @Override
