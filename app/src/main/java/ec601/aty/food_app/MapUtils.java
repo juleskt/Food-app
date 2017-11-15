@@ -34,6 +34,7 @@ public class MapUtils
     public static void clearMap()
     {
         mMap.clear();
+        markerMap.clear();
     }
 
     public static void setUpHandlerForMarkerClicks()
