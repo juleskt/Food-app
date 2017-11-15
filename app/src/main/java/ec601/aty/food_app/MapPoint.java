@@ -11,12 +11,14 @@ public class MapPoint
     private long createdUnixTime;
     private long expiryUnixTime;
 
-    public MapPoint() {}
+    public MapPoint()
+    {
+    }
 
     public MapPoint(double latitude, double longitude)
     {
-       this.latitude = latitude;
-       this.longitude = longitude;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public String getDescription()
@@ -62,20 +64,24 @@ public class MapPoint
         this.expiryUnixTime = expiryUnixTime;
     }
 
-    public double getLatitude() {
+    public double getLatitude()
+    {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(double latitude)
+    {
         this.latitude = latitude;
     }
 
 
-    public double getLongitude() {
+    public double getLongitude()
+    {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(double longitude)
+    {
         this.longitude = longitude;
     }
 }

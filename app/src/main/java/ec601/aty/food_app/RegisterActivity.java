@@ -13,7 +13,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity
+{
 
     private static final String USER_DATA_NODE_PATH = "userData";
     private EditText orgname;
@@ -23,7 +24,8 @@ public class RegisterActivity extends AppCompatActivity {
     private Spinner typespinner;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
@@ -38,32 +40,42 @@ public class RegisterActivity extends AppCompatActivity {
 
         orgname = (EditText) findViewById(R.id.nameinput);
         regbutton = findViewById(R.id.register);
-        regbutton.setOnClickListener(view -> {
-            if (orgname.getText().toString().length()==0){
+        regbutton.setOnClickListener(view ->
+        {
+            if (orgname.getText().toString().length() == 0)
+            {
                 orgname.setError("Please enter the name of your organization");
                 orgname.requestFocus();
             }
-            else if (typespinner.getSelectedItem().toString() == null) {
+            else if (typespinner.getSelectedItem().toString() == null)
+            {
                 Toast.makeText(RegisterActivity.this, "Please select an account type", Toast.LENGTH_LONG).show();
             }
-            else {
+            else
+            {
                 registerUser();
             }
         });
     }
 
-    protected void registerUser(){
+    protected void registerUser()
+    {
         User.AccountType accountType = User.AccountType.valueOf(typespinner.getSelectedItem().toString().toUpperCase());
         User user = new User(accountType, orgname.getText().toString());
         ref.child(mAuth.getCurrentUser().getUid()).setValue(user);
 
-        switch (accountType) {
-            case PRODUCER: {
+        switch (accountType)
+        {
+            case PRODUCER:
+            {
                 UserUtils.addProducer(mAuth.getCurrentUser().getUid(), orgname.getText().toString());
+                UserUtils.getCurrentUserDetails(mAuth);
                 break;
             }
-            case CONSUMER: {
+            case CONSUMER:
+            {
                 UserUtils.addConsumer(mAuth.getCurrentUser().getUid(), orgname.getText().toString());
+                UserUtils.getCurrentUserDetails(mAuth);
                 break;
             }
         }

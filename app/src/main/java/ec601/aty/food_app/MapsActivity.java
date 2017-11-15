@@ -10,6 +10,7 @@ import android.os.Bundle;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MapsActivity extends FragmentActivity implements
@@ -46,7 +48,6 @@ public class MapsActivity extends FragmentActivity implements
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-    private Location mLastLocation = null;
     private MapPoint currentMapPoint = null;
 
     private final static int FINE_LOCATION_PERMISSION = 1;
@@ -82,8 +83,7 @@ public class MapsActivity extends FragmentActivity implements
         setUpMapIfNeeded();
 
         mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener()
-        {
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
             {
@@ -92,18 +92,23 @@ public class MapsActivity extends FragmentActivity implements
                     userEmail = (TextView) findViewById(R.id.userEmail);
                     userEmail.setText(mAuth.getCurrentUser().getEmail());
                 }
+                else
+                {
+                     UserUtils.currentUserSingleton = null;
+                }
             }
         };
 
         loginButton = findViewById(R.id.loginout);
 
-        if (mAuth.getCurrentUser() == null)
+        if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
-            loginButton.setText(R.string.login);
+            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         }
         else
         {
             loginButton.setText(R.string.logout);
+            UserUtils.getCurrentUserDetails(mAuth);
         }
     }
 
@@ -114,24 +119,20 @@ public class MapsActivity extends FragmentActivity implements
         setUpMapIfNeeded();
     }
 
-    //Update the live location dot
+    // Update the live location dot
     private void displayLocation()
     {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED)
         {
-            mLastLocation = LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient);
-
-            if (mLastLocation != null)
-            {
-                LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 14);
-                mMap.animateCamera(cameraUpdate);
-            } else
-            {
-
-            }
+            LocationServices.getFusedLocationProviderClient(this).getLastLocation()
+                    .addOnSuccessListener(this, (location) -> {
+                        if (location != null ) {
+                            LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                            mMap.animateCamera(cameraUpdate);
+                        }
+                    });
         }
     }
 
@@ -155,13 +156,14 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapClick(LatLng point)
     {
-        currentMapPoint = new MapPoint(point.latitude, point.longitude);
-        mMap.addMarker(new MarkerOptions()
-                .position(point)
-                .title("You are here")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        if (UserUtils.isCurrentUserProducer()) {
+            currentMapPoint = new MapPoint(point.latitude, point.longitude);
+            mMap.addMarker(new MarkerOptions()
+                    .position(point)
+                    .title("You are here")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        }
     }
-
 
     public void onMapLoginClick(View view)
     {
@@ -175,7 +177,7 @@ public class MapsActivity extends FragmentActivity implements
         }
         else
         {
-            mAuth.signOut();
+            UserUtils.safeSignOut(mAuth);
             Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
             userEmail = findViewById(R.id.userEmail);
             userEmail.setText(R.string.none);
@@ -192,29 +194,30 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapPublishClick(View view)
     {
-        if (null == currentMapPoint)
-        {
+        if (UserUtils.isCurrentUserProducer()) {
+            if (null == currentMapPoint) {
+                Toast.makeText(
+                        getApplicationContext(),
+                        "Please place a marker",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
+
+            currentMapPoint.setCreatedUnixTime(currentCreatedTime);
+            currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
+
+            String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
+            FirebaseUtils.pushPointData(refKey, currentMapPoint);
+
             Toast.makeText(
                     getApplicationContext(),
-                    "Please place a marker",
+                    "Published point!",
                     Toast.LENGTH_SHORT).show();
-            return;
+
+            currentMapPoint = null;
         }
-
-        long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
-
-        currentMapPoint.setCreatedUnixTime(currentCreatedTime);
-        currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
-
-        String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
-        FirebaseUtils.pushPointData(refKey, currentMapPoint);
-
-        Toast.makeText(
-                getApplicationContext(),
-                "Published point!",
-                Toast.LENGTH_SHORT).show();
-
-        currentMapPoint = null;
     }
 
     public void onMapFindLocationsClick(View view)
@@ -266,7 +269,6 @@ public class MapsActivity extends FragmentActivity implements
             // Set up map movement listeners
             mMap.setOnCameraIdleListener(this);
             mMap.setOnCameraMoveStartedListener(this);
-            displayLocation();
         }
     }
 
@@ -313,6 +315,8 @@ public class MapsActivity extends FragmentActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
+
+        displayLocation();
     }
 
     @Override
@@ -326,16 +330,14 @@ public class MapsActivity extends FragmentActivity implements
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 {
-
+                    // @TODO Some checking
                 } else
                 {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                    // @TODO permission denied, boo! Disable the functionality that depends on this permission.
                 }
                 return;
             }
-            // other 'case' lines to check for other
-            // permissions this app might request
+            // @TODO other 'case' lines to check for other permissions this app might request
         }
     }
 
@@ -352,7 +354,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onConnected(Bundle bundle)
     {
-        displayLocation();
+       // displayLocation();
     }
 
     // Spam retry, lol maybe want to have better behavior in the future

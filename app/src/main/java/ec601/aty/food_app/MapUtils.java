@@ -5,24 +5,29 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
 
-public class MapUtils {
+public class MapUtils
+{
     private static GoogleMap mMap;
 
-    public static void setMap(GoogleMap gMap) {
+    public static void setMap(GoogleMap gMap)
+    {
         mMap = gMap;
     }
 
-    public static void addMarkerToMap(MarkerOptions markerOption) {
+    public static void addMarkerToMap(MarkerOptions markerOption)
+    {
         mMap.addMarker(markerOption);
     }
 
-    public static void addMarkersToMap(List<MarkerOptions> markerOptions) {
+    public static void addMarkersToMap(List<MarkerOptions> markerOptions)
+    {
         markerOptions.forEach(markerOption ->
-            mMap.addMarker(markerOption)
+                mMap.addMarker(markerOption)
         );
     }
 
-    public static void clearMap() {
+    public static void clearMap()
+    {
         mMap.clear();
     }
 }
