@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -33,6 +34,12 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -53,6 +60,7 @@ public class MapsActivity extends FragmentActivity implements
 
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
+    private static final String TAG = "MAPS_ACTIVITY";
 
     private Button loginButton;
     private TextView userEmail;
@@ -226,8 +234,7 @@ public class MapsActivity extends FragmentActivity implements
 
             final Dialog dialog = new Dialog(MapsActivity.this);
             dialog.setContentView(R.layout.publish_dialog);
-            dialog.setTitle("Title...");
-
+            dialog.setTitle("Food publish details");
 
 
             Spinner unit_spinner = (Spinner) dialog.findViewById(R.id.unit_selection);
@@ -243,30 +250,62 @@ public class MapsActivity extends FragmentActivity implements
                 @Override
                 public void onClick(View v)
                 {
+                    String validity = (((TextView) dialog.findViewById(R.id.hours_available)).getText().toString());
+                    String quantity_str = (((TextView) dialog.findViewById(R.id.quantity_box)).getText().toString());
+                    if (validity.length() == 0)
+                    {
+                        // TODO: Maybe set error on the edittext instead of a toast?
+                        Toast.makeText(MapsActivity.this, "Please enter how many hours your food will be available.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    if (quantity_str.length() == 0)
+                    {
+                        Toast.makeText(MapsActivity.this, "Please enter how much food you will have available", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    int hours = 3;
+                    Double quantity;
+                    try
+                    {
+                        hours = Integer.parseInt(validity);
+                        quantity = Double.parseDouble(quantity_str);
+                    } catch (Exception e)
+                    {
+                        Log.e(TAG, "" + e);
+                        Toast.makeText(MapsActivity.this, "Please enter valid inputs", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    String unit = (((Spinner) dialog.findViewById(R.id.unit_selection)).getSelectedItem().toString());
+
+
+                    long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
+
+                    currentMapPoint.setCreatedUnixTime(currentCreatedTime);
+                    currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, hours));
+                    currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
+                    currentMapPoint.setUnit(unit);
+                    currentMapPoint.setQuantity(quantity);
+
+
+                    String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
+                    UserUtils.addPointForCurrentProducer(refKey, mAuth);
+                    FirebaseUtils.pushPointData(refKey, currentMapPoint);
+
                     dialog.dismiss();
+
+                    Toast.makeText(
+                            getApplicationContext(),
+                            "Published point!",
+                            Toast.LENGTH_SHORT).show();
+
+                    currentMapPoint = null;
+
                 }
             });
-
             dialog.show();
-
-//            long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
-//
-//            currentMapPoint.setCreatedUnixTime(currentCreatedTime);
-//            currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
-//            currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
-//
-//            String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
-//            UserUtils.addPointForCurrentProducer(refKey, mAuth);
-//            FirebaseUtils.pushPointData(refKey, currentMapPoint);
-
-            Toast.makeText(
-                    getApplicationContext(),
-                    "Published point!",
-                    Toast.LENGTH_SHORT).show();
-
-            currentMapPoint = null;
         }
     }
+
 
     public void onMapFindLocationsClick(View view)
     {
