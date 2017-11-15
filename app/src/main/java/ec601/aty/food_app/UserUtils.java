@@ -77,7 +77,8 @@ public class UserUtils
                     // @TODO: No network connectivity
                 }
             });
-        } else if (isConsumer(userToFind))
+        }
+        else if (isConsumer(userToFind))
         {
             DatabaseReference ref = database.getReference(CONSUMER_DATA_NODE_PATH);
             ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener()
@@ -157,5 +158,10 @@ public class UserUtils
         // @TODO: make different point classes
         pointKeyMap.put(geoFireKey, "Food MapPoint");
         ref.updateChildren(pointKeyMap);
+    }
+
+    public static Map<String, Object> getPointsForCurrentProducer()
+    {
+        return ((ProducerUser)currentUserSingleton).getLocationKeys();
     }
 }

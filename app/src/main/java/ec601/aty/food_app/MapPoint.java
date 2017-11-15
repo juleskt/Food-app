@@ -3,6 +3,8 @@ package ec601.aty.food_app;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.Exclude;
 
+import java.util.Map;
+
 public class MapPoint
 {
     private double latitude;
@@ -10,6 +12,10 @@ public class MapPoint
     private String description;
     private long createdUnixTime;
     private long expiryUnixTime;
+    private String posterID;
+
+    @Exclude
+    private Map<String, String> keyProducerPair;
 
     public MapPoint()
     {
@@ -83,5 +89,27 @@ public class MapPoint
     public void setLongitude(double longitude)
     {
         this.longitude = longitude;
+    }
+
+    public String getPosterID()
+    {
+        return posterID;
+    }
+
+    public void setPosterID(String posterID)
+    {
+        this.posterID = posterID;
+    }
+
+    @Exclude
+    public Map<String, String> getKeyProducerPair()
+    {
+        return keyProducerPair;
+    }
+
+    @Exclude
+    public void setKeyProducerPair(Map<String, String> keyProducerPair)
+    {
+        this.keyProducerPair = keyProducerPair;
     }
 }
