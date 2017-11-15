@@ -72,7 +72,8 @@ public class MapsActivity extends FragmentActivity implements
         }
 
         mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
+        mAuthListener = new FirebaseAuth.AuthStateListener()
+        {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
             {
@@ -80,8 +81,7 @@ public class MapsActivity extends FragmentActivity implements
                 {
                     userEmail = (TextView) findViewById(R.id.userEmail);
                     userEmail.setText(mAuth.getCurrentUser().getEmail());
-                }
-                else
+                } else
                 {
                     UserUtils.currentUserSingleton = null;
                 }
@@ -93,11 +93,24 @@ public class MapsActivity extends FragmentActivity implements
         if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-        }
-        else
+        } else
         {
             loginButton.setText(R.string.logout);
             UserUtils.getCurrentUserDetails(mAuth);
+            if (UserUtils.isCurrentUserProducer())
+            {
+                Button locations =  findViewById(R.id.findLocations);
+                locations.setVisibility(View.GONE);
+
+                EditText radius = findViewById(R.id.radiusText);
+                radius.setVisibility(View.GONE);
+
+            }
+            else
+            {
+                Button publish = findViewById(R.id.sendLocationToFireBase);
+                publish.setVisibility(View.GONE);
+            }
         }
 
         ActivityCompat.requestPermissions(
@@ -122,9 +135,11 @@ public class MapsActivity extends FragmentActivity implements
                 PackageManager.PERMISSION_GRANTED)
         {
             LocationServices.getFusedLocationProviderClient(this).getLastLocation()
-                    .addOnSuccessListener(this, (location) -> {
-                        if (location != null ) {
-                            LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+                    .addOnSuccessListener(this, (location) ->
+                    {
+                        if (location != null)
+                        {
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
                             mMap.animateCamera(cameraUpdate);
                         }
@@ -157,7 +172,8 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapClick(LatLng point)
     {
-        if (UserUtils.isCurrentUserProducer()) {
+        if (UserUtils.isCurrentUserProducer())
+        {
             currentMapPoint = new MapPoint(point.latitude, point.longitude);
             mMap.addMarker(new MarkerOptions()
                     .position(point)
@@ -175,8 +191,7 @@ public class MapsActivity extends FragmentActivity implements
             {
                 loginButton.setText(R.string.logout);
             }
-        }
-        else
+        } else
         {
             UserUtils.safeSignOut(mAuth);
             Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
@@ -195,8 +210,10 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapPublishClick(View view)
     {
-        if (UserUtils.isCurrentUserProducer()) {
-            if (null == currentMapPoint) {
+        if (UserUtils.isCurrentUserProducer())
+        {
+            if (null == currentMapPoint)
+            {
                 Toast.makeText(
                         getApplicationContext(),
                         "Please place a marker",
@@ -232,8 +249,7 @@ public class MapsActivity extends FragmentActivity implements
         {
             GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target);
             GeoFireUtils.radiusGeoQuery(mMap);
-        }
-        else if ( Double.parseDouble(radiusText.getText().toString()) > 20.0)
+        } else if (Double.parseDouble(radiusText.getText().toString()) > 20.0)
         {
             Toast.makeText(
                     getApplicationContext(),
@@ -242,13 +258,13 @@ public class MapsActivity extends FragmentActivity implements
 
             GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, 20);
             GeoFireUtils.radiusGeoQuery(mMap);
-        }
-        else
+        } else
         {
             GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, Double.parseDouble(radiusText.getText().toString()));
             GeoFireUtils.radiusGeoQuery(mMap);
         }
     }
+
     @Override
     public void onMapLongClick(LatLng point)
     {
@@ -263,7 +279,7 @@ public class MapsActivity extends FragmentActivity implements
             // Live locations
             mMap.setMyLocationEnabled(true);
             // Remove buildings
-          //  mMap.setBuildingsEnabled(false);
+            //  mMap.setBuildingsEnabled(false);
             // Turn off basic menu
             mMap.getUiSettings().setMapToolbarEnabled(false);
             // Set up map click listeners
@@ -343,7 +359,9 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onCameraMoveStarted(int reason) {}
+    public void onCameraMoveStarted(int reason)
+    {
+    }
 
     @Override
     public void onCameraIdle()
@@ -355,12 +373,14 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onConnected(Bundle bundle)
     {
-       // displayLocation();
+        // displayLocation();
     }
 
     // Spam retry, lol maybe want to have better behavior in the future
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {}
+    public void onConnectionFailed(ConnectionResult connectionResult)
+    {
+    }
 
     //When disconnected, try to recon
     @Override
