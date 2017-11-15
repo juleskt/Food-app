@@ -46,10 +46,12 @@ public class RegisterActivity extends AppCompatActivity
             {
                 orgname.setError("Please enter the name of your organization");
                 orgname.requestFocus();
-            } else if (typespinner.getSelectedItem().toString() == null)
+            }
+            else if (typespinner.getSelectedItem().toString() == null)
             {
                 Toast.makeText(RegisterActivity.this, "Please select an account type", Toast.LENGTH_LONG).show();
-            } else
+            }
+            else
             {
                 registerUser();
             }

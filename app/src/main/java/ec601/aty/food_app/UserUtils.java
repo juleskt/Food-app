@@ -134,4 +134,10 @@ public class UserUtils
             }
         });
     }
+
+    public static void safeSignOut(FirebaseAuth mAuth)
+    {
+        mAuth.signOut();
+        currentUserSingleton = null;
+    }
 }

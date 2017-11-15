@@ -101,13 +101,9 @@ public class MapsActivity extends FragmentActivity implements
 
         loginButton = findViewById(R.id.loginout);
 
-        if (mAuth.getCurrentUser() == null)
+        if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-        }
-        else if (UserUtils.currentUserSingleton == null && mAuth.getCurrentUser() != null)
-        {
-            startActivity(new Intent(MapsActivity.this, RegisterActivity.class));
         }
         else
         {
@@ -181,7 +177,7 @@ public class MapsActivity extends FragmentActivity implements
         }
         else
         {
-            mAuth.signOut();
+            UserUtils.safeSignOut(mAuth);
             Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
             userEmail = findViewById(R.id.userEmail);
             userEmail.setText(R.string.none);
