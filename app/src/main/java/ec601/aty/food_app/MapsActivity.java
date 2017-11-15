@@ -92,6 +92,10 @@ public class MapsActivity extends FragmentActivity implements
                     userEmail = (TextView) findViewById(R.id.userEmail);
                     userEmail.setText(mAuth.getCurrentUser().getEmail());
                 }
+                else
+                {
+                     UserUtils.currentUserSingleton = null;
+                }
             }
         };
 
@@ -101,7 +105,7 @@ public class MapsActivity extends FragmentActivity implements
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         }
-        else if (UserUtils.currentUserSingleton == null)
+        else if (UserUtils.currentUserSingleton == null && mAuth.getCurrentUser() != null)
         {
             startActivity(new Intent(MapsActivity.this, RegisterActivity.class));
         }

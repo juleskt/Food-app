@@ -166,6 +166,7 @@ public class LoginActivity extends AppCompatActivity
             if (mGoogleApiClient != null && mGoogleApiClient.isConnected())
             {
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                UserUtils.currentUserSingleton = null;
             }
         }
     }

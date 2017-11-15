@@ -16,7 +16,7 @@ public class UserUtils
     private static final String CONSUMER_DATA_NODE_PATH = "consumerData";
     private static final String USER_DATA_NODE_PATH = "userData";
 
-    public static User currentUserSingleton;
+    public static User currentUserSingleton = null;
 
     public static boolean isProducer(User user)
     {

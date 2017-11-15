@@ -67,11 +67,13 @@ public class RegisterActivity extends AppCompatActivity
             case PRODUCER:
             {
                 UserUtils.addProducer(mAuth.getCurrentUser().getUid(), orgname.getText().toString());
+                UserUtils.getCurrentUserDetails(mAuth);
                 break;
             }
             case CONSUMER:
             {
                 UserUtils.addConsumer(mAuth.getCurrentUser().getUid(), orgname.getText().toString());
+                UserUtils.getCurrentUserDetails(mAuth);
                 break;
             }
         }
