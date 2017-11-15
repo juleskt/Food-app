@@ -10,65 +10,83 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class UserUtils {
+public class UserUtils
+{
     private static final String PRODUCER_DATA_NODE_PATH = "producerData";
     private static final String CONSUMER_DATA_NODE_PATH = "consumerData";
     private static final String USER_DATA_NODE_PATH = "userData";
 
     public static User currentUserSingleton;
 
-    public static boolean isProducer(User user) {
+    public static boolean isProducer(User user)
+    {
         return user instanceof ProducerUser;
     }
-    public static boolean isConsumer(User user) {
+
+    public static boolean isConsumer(User user)
+    {
         return user instanceof ConsumerUser;
     }
 
-    public static boolean isCurrentUserProducer() {
+    public static boolean isCurrentUserProducer()
+    {
         return currentUserSingleton instanceof ProducerUser;
     }
-    public static boolean isCurrentUserConsumer() {
+
+    public static boolean isCurrentUserConsumer()
+    {
         return currentUserSingleton instanceof ConsumerUser;
     }
 
-    public static void addProducer(String key, String name) {
+    public static void addProducer(String key, String name)
+    {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(PRODUCER_DATA_NODE_PATH).child(key);
         ref.setValue(new ProducerUser(name));
     }
 
-    public static void addConsumer(String key, String name) {
+    public static void addConsumer(String key, String name)
+    {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(CONSUMER_DATA_NODE_PATH).child(key);
         ref.setValue(new ConsumerUser(name));
     }
 
-    public static void searchForForUserTypeData(FirebaseAuth mAuth, User userToFind) {
+    public static void searchForForUserTypeData(FirebaseAuth mAuth, User userToFind)
+    {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-        if (isProducer(userToFind)) {
+        if (isProducer(userToFind))
+        {
             DatabaseReference ref = database.getReference(PRODUCER_DATA_NODE_PATH);
-            ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener()
+            {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                   currentUserSingleton = dataSnapshot.getValue(ProducerUser.class);
+                public void onDataChange(DataSnapshot dataSnapshot)
+                {
+                    currentUserSingleton = dataSnapshot.getValue(ProducerUser.class);
                 }
 
                 @Override
-                public void onCancelled(DatabaseError firebaseError) {
+                public void onCancelled(DatabaseError firebaseError)
+                {
                     // @TODO: No network connectivity
                 }
             });
-        } else if (isConsumer(userToFind)) {
+        } else if (isConsumer(userToFind))
+        {
             DatabaseReference ref = database.getReference(CONSUMER_DATA_NODE_PATH);
-            ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener()
+            {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
+                public void onDataChange(DataSnapshot dataSnapshot)
+                {
                     currentUserSingleton = dataSnapshot.getValue(ConsumerUser.class);
                 }
 
                 @Override
-                public void onCancelled(DatabaseError firebaseError) {
+                public void onCancelled(DatabaseError firebaseError)
+                {
                     // @TODO: No network connectivity
                 }
             });
@@ -77,33 +95,41 @@ public class UserUtils {
 
     // Pretty hacky, but need a way to call searchForUser from MapsActivity to handle already logged in people
     // Essentially same functionality as LoginActivity::searchForExistingUser but called from static context
-    public static void getCurrentUserDetails(FirebaseAuth mAuth) {
+    public static void getCurrentUserDetails(FirebaseAuth mAuth)
+    {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(USER_DATA_NODE_PATH);
-        ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener()
+        {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
                 User foundUser = dataSnapshot.getValue(User.class);
 
-                switch (foundUser.getAccountType()) {
-                    case PRODUCER: {
+                switch (foundUser.getAccountType())
+                {
+                    case PRODUCER:
+                    {
                         currentUserSingleton = new ProducerUser(foundUser);
                         searchForForUserTypeData(mAuth, currentUserSingleton);
                         break;
                     }
-                    case CONSUMER: {
+                    case CONSUMER:
+                    {
                         currentUserSingleton = new ConsumerUser(foundUser);
                         searchForForUserTypeData(mAuth, currentUserSingleton);
                         break;
                     }
-                    default: {
+                    default:
+                    {
                         // whoops
                     }
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError firebaseError) {
+            public void onCancelled(DatabaseError firebaseError)
+            {
                 // @TODO: No network connectivity
             }
         });

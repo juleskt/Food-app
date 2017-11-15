@@ -90,7 +90,8 @@ public class GeoFireUtils
         });
     }
 
-    private static void displayGeoQueryResultsOnMap(List<String> geofireKeysList) {
+    private static void displayGeoQueryResultsOnMap(List<String> geofireKeysList)
+    {
         FirebaseUtils.populateMapWithMapPointsFromGeofireKeys(geofireKeysList);
     }
 }

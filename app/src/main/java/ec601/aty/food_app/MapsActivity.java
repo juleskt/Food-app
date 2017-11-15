@@ -101,6 +101,10 @@ public class MapsActivity extends FragmentActivity implements
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         }
+        else if (UserUtils.currentUserSingleton == null)
+        {
+            startActivity(new Intent(MapsActivity.this, RegisterActivity.class));
+        }
         else
         {
             loginButton.setText(R.string.logout);
@@ -122,13 +126,13 @@ public class MapsActivity extends FragmentActivity implements
                 PackageManager.PERMISSION_GRANTED)
         {
             LocationServices.getFusedLocationProviderClient(this).getLastLocation()
-                .addOnSuccessListener(this, (location) -> {
-                    if (location != null ) {
-                        LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
-                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-                        mMap.animateCamera(cameraUpdate);
-                    }
-                });
+                    .addOnSuccessListener(this, (location) -> {
+                        if (location != null ) {
+                            LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                            mMap.animateCamera(cameraUpdate);
+                        }
+                    });
         }
     }
 

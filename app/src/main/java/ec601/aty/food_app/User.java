@@ -1,7 +1,9 @@
 package ec601.aty.food_app;
 
-public class User {
-    public enum AccountType {
+public class User
+{
+    public enum AccountType
+    {
         PRODUCER,
         CONSUMER
     }
@@ -9,28 +11,34 @@ public class User {
     protected String name;
     protected AccountType accountType;
 
-    public User(){
+    public User()
+    {
 
     }
 
-    public User(AccountType accountType, String name){
+    public User(AccountType accountType, String name)
+    {
         this.name = name;
         this.accountType = accountType;
     }
 
-    public AccountType getAccountType() {
+    public AccountType getAccountType()
+    {
         return accountType;
     }
 
-    public void setAccountType(AccountType accountType) {
+    public void setAccountType(AccountType accountType)
+    {
         this.accountType = accountType;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name)
+    {
         this.name = name;
     }
 }
