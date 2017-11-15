@@ -10,11 +10,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class UserUtils
 {
     private static final String PRODUCER_DATA_NODE_PATH = "producerData";
     private static final String CONSUMER_DATA_NODE_PATH = "consumerData";
     private static final String USER_DATA_NODE_PATH = "userData";
+    private static final String PRODUCER_LOCATION_KEY_CHILD_PATH = "locationKeys";
 
     public static User currentUserSingleton = null;
 
@@ -73,7 +77,8 @@ public class UserUtils
                     // @TODO: No network connectivity
                 }
             });
-        } else if (isConsumer(userToFind))
+        }
+        else if (isConsumer(userToFind))
         {
             DatabaseReference ref = database.getReference(CONSUMER_DATA_NODE_PATH);
             ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener()
@@ -139,5 +144,24 @@ public class UserUtils
     {
         mAuth.signOut();
         currentUserSingleton = null;
+    }
+
+    public static void addPointForCurrentProducer(String geoFireKey, FirebaseAuth mAuth)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(PRODUCER_DATA_NODE_PATH)
+                .child(mAuth.getCurrentUser().getUid())
+                .child(PRODUCER_LOCATION_KEY_CHILD_PATH);
+
+        Map<String, Object> pointKeyMap = new HashMap<String, Object>();
+        // @TODO: make different point classes
+        pointKeyMap.put(geoFireKey, "Food MapPoint");
+        ref.updateChildren(pointKeyMap);
+    }
+
+    public static Map<String, Object> getPointsForCurrentProducer()
+    {
+        return ((ProducerUser)currentUserSingleton).getLocationKeys();
     }
 }

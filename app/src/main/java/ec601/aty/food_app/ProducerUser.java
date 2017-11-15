@@ -1,11 +1,12 @@
 package ec601.aty.food_app;
 
 import java.util.List;
+import java.util.Map;
 
 public class ProducerUser extends User
 {
 
-    List<String> locationKeys;
+    Map<String, Object> locationKeys;
 
     public ProducerUser(AccountType accountType, String name)
     {
@@ -27,12 +28,12 @@ public class ProducerUser extends User
     {
     }
 
-    public List<String> getLocationKeys()
+    public Map<String, Object> getLocationKeys()
     {
         return locationKeys;
     }
 
-    public void setLocationKeys(List<String> locationKeys)
+    public void setLocationKeys(Map<String, Object> locationKeys)
     {
         this.locationKeys = locationKeys;
     }

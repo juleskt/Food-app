@@ -10,7 +10,6 @@ import android.os.Bundle;
 
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,7 +19,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
-import android.location.Location;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Button;
@@ -30,7 +28,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MapsActivity extends FragmentActivity implements
@@ -74,14 +71,6 @@ public class MapsActivity extends FragmentActivity implements
             buildGoogleApiClient();
         }
 
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                FINE_LOCATION_PERMISSION);
-
-        mapFragment.getMapAsync(this);
-        setUpMapIfNeeded();
-
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -94,7 +83,7 @@ public class MapsActivity extends FragmentActivity implements
                 }
                 else
                 {
-                     UserUtils.currentUserSingleton = null;
+                    UserUtils.currentUserSingleton = null;
                 }
             }
         };
@@ -110,6 +99,13 @@ public class MapsActivity extends FragmentActivity implements
             loginButton.setText(R.string.logout);
             UserUtils.getCurrentUserDetails(mAuth);
         }
+
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                FINE_LOCATION_PERMISSION);
+
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -151,6 +147,11 @@ public class MapsActivity extends FragmentActivity implements
         mMap = googleMap;
         MapUtils.setMap(mMap);
         setUpMap();
+        if (UserUtils.isCurrentUserConsumer())
+        {
+            MapUtils.setUpHandlerForMarkerClicks();
+        }
+        displayLocation();
     }
 
     @Override
@@ -207,8 +208,10 @@ public class MapsActivity extends FragmentActivity implements
 
             currentMapPoint.setCreatedUnixTime(currentCreatedTime);
             currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
+            currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
 
             String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
+            UserUtils.addPointForCurrentProducer(refKey, mAuth);
             FirebaseUtils.pushPointData(refKey, currentMapPoint);
 
             Toast.makeText(
@@ -315,8 +318,6 @@ public class MapsActivity extends FragmentActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
-
-        displayLocation();
     }
 
     @Override

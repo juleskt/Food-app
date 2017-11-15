@@ -8,7 +8,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FirebaseUtils
 {
@@ -32,7 +34,12 @@ public class FirebaseUtils
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot)
                     {
-                        displayMapPointOnMap(dataSnapshot.getValue(MapPoint.class));
+                        MapPoint pointToAdd = dataSnapshot.getValue(MapPoint.class);
+
+                        displayMapPointOnMap(
+                                pointToAdd,
+                                createGeoFireKeyToProducerKeyPair(pointToAdd, key)
+                        );
                     }
 
                     @Override
@@ -43,11 +50,22 @@ public class FirebaseUtils
         );
     }
 
-    private static void displayMapPointOnMap(MapPoint mapPoint)
+    private static void displayMapPointOnMap(MapPoint mapPoint, Map<String, String> idMap)
     {
-        MapUtils.addMarkerToMap(new MarkerOptions()
-                .position(mapPoint.getCoordinates())
-                .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(mapPoint.getExpiryUnixTime()))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        MapUtils.addMarkerToMap(
+                new MarkerOptions()
+                    .position(mapPoint.getCoordinates())
+                    .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(mapPoint.getExpiryUnixTime()))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)),
+                idMap
+        );
+    }
+
+    // We need this mapping to identify which marker is clicked by a Consumer
+    private static Map<String, String> createGeoFireKeyToProducerKeyPair(MapPoint point, String key)
+    {
+        Map<String, String> keyToProducerMap = new HashMap<>();
+        keyToProducerMap.put(key, point.getPosterID());
+        return keyToProducerMap;
     }
 }
