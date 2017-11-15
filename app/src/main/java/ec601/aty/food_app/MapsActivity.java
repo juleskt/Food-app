@@ -74,14 +74,6 @@ public class MapsActivity extends FragmentActivity implements
             buildGoogleApiClient();
         }
 
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                FINE_LOCATION_PERMISSION);
-
-        mapFragment.getMapAsync(this);
-        setUpMapIfNeeded();
-
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -94,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements
                 }
                 else
                 {
-                     UserUtils.currentUserSingleton = null;
+                    UserUtils.currentUserSingleton = null;
                 }
             }
         };
@@ -110,6 +102,14 @@ public class MapsActivity extends FragmentActivity implements
             loginButton.setText(R.string.logout);
             UserUtils.getCurrentUserDetails(mAuth);
         }
+
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                FINE_LOCATION_PERMISSION);
+
+        mapFragment.getMapAsync(this);
+        setUpMapIfNeeded();
     }
 
     @Override
