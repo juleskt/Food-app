@@ -1,6 +1,8 @@
 package ec601.aty.food_app;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -20,15 +22,24 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -49,6 +60,7 @@ public class MapsActivity extends FragmentActivity implements
 
     private final static int FINE_LOCATION_PERMISSION = 1;
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
+    private static final String TAG = "MAPS_ACTIVITY";
 
     private Button loginButton;
     private TextView userEmail;
@@ -72,7 +84,8 @@ public class MapsActivity extends FragmentActivity implements
         }
 
         mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
+        mAuthListener = new FirebaseAuth.AuthStateListener()
+        {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
             {
@@ -80,8 +93,7 @@ public class MapsActivity extends FragmentActivity implements
                 {
                     userEmail = (TextView) findViewById(R.id.userEmail);
                     userEmail.setText(mAuth.getCurrentUser().getEmail());
-                }
-                else
+                } else
                 {
                     UserUtils.currentUserSingleton = null;
                 }
@@ -93,11 +105,23 @@ public class MapsActivity extends FragmentActivity implements
         if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-        }
-        else
+        } else
         {
             loginButton.setText(R.string.logout);
             UserUtils.getCurrentUserDetails(mAuth);
+            if (UserUtils.isCurrentUserProducer())
+            {
+                Button locations = findViewById(R.id.findLocations);
+                locations.setVisibility(View.GONE);
+
+                EditText radius = findViewById(R.id.radiusText);
+                radius.setVisibility(View.GONE);
+
+            } else
+            {
+                Button publish = findViewById(R.id.sendLocationToFireBase);
+                publish.setVisibility(View.GONE);
+            }
         }
 
         ActivityCompat.requestPermissions(
@@ -122,9 +146,11 @@ public class MapsActivity extends FragmentActivity implements
                 PackageManager.PERMISSION_GRANTED)
         {
             LocationServices.getFusedLocationProviderClient(this).getLastLocation()
-                    .addOnSuccessListener(this, (location) -> {
-                        if (location != null ) {
-                            LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+                    .addOnSuccessListener(this, (location) ->
+                    {
+                        if (location != null)
+                        {
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
                             mMap.animateCamera(cameraUpdate);
                         }
@@ -157,7 +183,8 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapClick(LatLng point)
     {
-        if (UserUtils.isCurrentUserProducer()) {
+        if (UserUtils.isCurrentUserProducer())
+        {
             currentMapPoint = new MapPoint(point.latitude, point.longitude);
             mMap.addMarker(new MarkerOptions()
                     .position(point)
@@ -175,8 +202,7 @@ public class MapsActivity extends FragmentActivity implements
             {
                 loginButton.setText(R.string.logout);
             }
-        }
-        else
+        } else
         {
             UserUtils.safeSignOut(mAuth);
             Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
@@ -195,8 +221,10 @@ public class MapsActivity extends FragmentActivity implements
 
     public void onMapPublishClick(View view)
     {
-        if (UserUtils.isCurrentUserProducer()) {
-            if (null == currentMapPoint) {
+        if (UserUtils.isCurrentUserProducer())
+        {
+            if (null == currentMapPoint)
+            {
                 Toast.makeText(
                         getApplicationContext(),
                         "Please place a marker",
@@ -204,23 +232,81 @@ public class MapsActivity extends FragmentActivity implements
                 return;
             }
 
-            long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
+            final Dialog dialog = new Dialog(MapsActivity.this);
+            dialog.setContentView(R.layout.publish_dialog);
+            dialog.setTitle("Food publish details");
 
-            currentMapPoint.setCreatedUnixTime(currentCreatedTime);
-            currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, 3));
-            currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
+            Spinner unit_spinner = (Spinner) dialog.findViewById(R.id.unit_selection);
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                    R.array.unit_types, android.R.layout.simple_spinner_item);
 
-            String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
-            UserUtils.addPointForCurrentProducer(refKey, mAuth);
-            FirebaseUtils.pushPointData(refKey, currentMapPoint);
-
-            Toast.makeText(
-                    getApplicationContext(),
-                    "Published point!",
-                    Toast.LENGTH_SHORT).show();
-
-            currentMapPoint = null;
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            unit_spinner.setAdapter(adapter);
+            Button dialogButton = (Button) dialog.findViewById(R.id.publish_dialog_button);
+            // if button is clicked, close the custom dialog
+            dialogButton.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    dialogPublish(dialog);
+                }
+            });
+            dialog.show();
         }
+    }
+
+    public void dialogPublish(Dialog dialog)
+    {
+        String validity = (((TextView) dialog.findViewById(R.id.hours_available)).getText().toString());
+        String quantity_str = (((TextView) dialog.findViewById(R.id.quantity_box)).getText().toString());
+        if (validity.length() == 0)
+        {
+            // TODO: Maybe set error on the edittext instead of a toast?
+            Toast.makeText(MapsActivity.this, "Please enter how many hours your food will be available.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (quantity_str.length() == 0)
+        {
+            Toast.makeText(MapsActivity.this, "Please enter how much food you will have available", Toast.LENGTH_LONG).show();
+            return;
+        }
+        int hours;
+        Double quantity;
+        try
+        {
+            hours = Integer.parseInt(validity);
+            quantity = Double.parseDouble(quantity_str);
+        } catch (Exception e)
+        {
+            Log.e(TAG, "" + e);
+            Toast.makeText(MapsActivity.this, "Please enter valid inputs", Toast.LENGTH_LONG).show();
+            return;
+        }
+        String unit = (((Spinner) dialog.findViewById(R.id.unit_selection)).getSelectedItem().toString());
+
+
+        long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
+
+        currentMapPoint.setCreatedUnixTime(currentCreatedTime);
+        currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, hours));
+        currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
+        currentMapPoint.setUnit(unit);
+        currentMapPoint.setQuantity(quantity);
+
+
+        String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
+        UserUtils.addPointForCurrentProducer(refKey, mAuth);
+        FirebaseUtils.pushPointData(refKey, currentMapPoint);
+
+        dialog.dismiss();
+
+        Toast.makeText(
+                getApplicationContext(),
+                "Published point!",
+                Toast.LENGTH_SHORT).show();
+
+        currentMapPoint = null;
     }
 
     public void onMapFindLocationsClick(View view)
@@ -232,8 +318,7 @@ public class MapsActivity extends FragmentActivity implements
         {
             GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target);
             GeoFireUtils.radiusGeoQuery(mMap);
-        }
-        else if ( Double.parseDouble(radiusText.getText().toString()) > 20.0)
+        } else if (Double.parseDouble(radiusText.getText().toString()) > 20.0)
         {
             Toast.makeText(
                     getApplicationContext(),
@@ -242,13 +327,13 @@ public class MapsActivity extends FragmentActivity implements
 
             GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, 20);
             GeoFireUtils.radiusGeoQuery(mMap);
-        }
-        else
+        } else
         {
             GeoFireUtils.setGeoQueryLocation(mMap.getCameraPosition().target, Double.parseDouble(radiusText.getText().toString()));
             GeoFireUtils.radiusGeoQuery(mMap);
         }
     }
+
     @Override
     public void onMapLongClick(LatLng point)
     {
@@ -263,7 +348,7 @@ public class MapsActivity extends FragmentActivity implements
             // Live locations
             mMap.setMyLocationEnabled(true);
             // Remove buildings
-          //  mMap.setBuildingsEnabled(false);
+            //  mMap.setBuildingsEnabled(false);
             // Turn off basic menu
             mMap.getUiSettings().setMapToolbarEnabled(false);
             // Set up map click listeners
@@ -343,7 +428,9 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onCameraMoveStarted(int reason) {}
+    public void onCameraMoveStarted(int reason)
+    {
+    }
 
     @Override
     public void onCameraIdle()
@@ -355,12 +442,14 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onConnected(Bundle bundle)
     {
-       // displayLocation();
+        // displayLocation();
     }
 
     // Spam retry, lol maybe want to have better behavior in the future
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {}
+    public void onConnectionFailed(ConnectionResult connectionResult)
+    {
+    }
 
     //When disconnected, try to recon
     @Override
