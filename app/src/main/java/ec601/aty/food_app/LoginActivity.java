@@ -92,6 +92,9 @@ public class LoginActivity extends AppCompatActivity
         mAuth.addAuthStateListener(mAuthListener);
     }
 
+    // @TODO will need to clean this up by going straight to the child node, it is not scalable in its current form (thousands, millions of users?) See FirebaseUtils::populateMapWithMapPointsFromGeofireKeys
+    // @TODO ^continuing, will need to figure out what firebase does when there is not a child with the reference
+
     public void searchForExistingUser()
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
