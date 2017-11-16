@@ -105,7 +105,8 @@ public class MapsActivity extends FragmentActivity implements
         if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-        } else
+        }
+        else
         {
             loginButton.setText(R.string.logout);
             UserUtils.getCurrentUserDetails(mAuth);
@@ -117,12 +118,15 @@ public class MapsActivity extends FragmentActivity implements
                 EditText radius = findViewById(R.id.radiusText);
                 radius.setVisibility(View.GONE);
 
-            } else
+            }
+            else
             {
                 Button publish = findViewById(R.id.sendLocationToFireBase);
                 publish.setVisibility(View.GONE);
             }
         }
+
+        UserUtils.setmAuth(mAuth);
 
         ActivityCompat.requestPermissions(
                 this,

@@ -19,8 +19,17 @@ public class UserUtils
     private static final String CONSUMER_DATA_NODE_PATH = "consumerData";
     private static final String USER_DATA_NODE_PATH = "userData";
     private static final String PRODUCER_LOCATION_KEY_CHILD_PATH = "locationKeys";
+    private static final String PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH = "interestedConsumers";
+    private static final String CONSUMER_INTERESTED_IN_PRODUCERS_CHILD_PATH = "interestedInProducerList";
+
+    private static FirebaseAuth mAuth;
 
     public static User currentUserSingleton = null;
+
+    public static void setmAuth(FirebaseAuth mAuth)
+    {
+        UserUtils.mAuth = mAuth;
+    }
 
     public static boolean isProducer(User user)
     {
@@ -154,7 +163,7 @@ public class UserUtils
                 .child(mAuth.getCurrentUser().getUid())
                 .child(PRODUCER_LOCATION_KEY_CHILD_PATH);
 
-        Map<String, Object> pointKeyMap = new HashMap<String, Object>();
+        Map<String, Object> pointKeyMap = new HashMap<>();
         // @TODO: make different point classes
         pointKeyMap.put(geoFireKey, "Food MapPoint");
         ref.updateChildren(pointKeyMap);
@@ -163,5 +172,29 @@ public class UserUtils
     public static Map<String, Object> getPointsForCurrentProducer()
     {
         return ((ProducerUser)currentUserSingleton).getLocationKeys();
+    }
+
+    public static void addConsumerAsInterestedInProducerFromPoint(String geofireKey, String producerKey)
+    {
+        // Registering the consumer as interested under the producer node in DB
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(PRODUCER_DATA_NODE_PATH)
+                .child(producerKey)
+                .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH);
+
+        Map<String, Object> consumerKeyToGeoFireKeyMap = new HashMap<>();
+        consumerKeyToGeoFireKeyMap.put(mAuth.getCurrentUser().getUid(), geofireKey);
+        ref.updateChildren(consumerKeyToGeoFireKeyMap);
+
+        // Registering the producer under the consumer node as an interest in DB
+        DatabaseReference newRef = database
+                .getReference(CONSUMER_DATA_NODE_PATH)
+                .child(mAuth.getCurrentUser().getUid())
+                .child(CONSUMER_INTERESTED_IN_PRODUCERS_CHILD_PATH);
+
+        Map<String, Object> producerKeyToGeoFireKeyMap = new HashMap<>();
+        consumerKeyToGeoFireKeyMap.put(producerKey, geofireKey);
+        newRef.updateChildren(producerKeyToGeoFireKeyMap);
     }
 }

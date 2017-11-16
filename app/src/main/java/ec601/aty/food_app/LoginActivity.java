@@ -29,7 +29,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity
 {
-
     private SignInButton googleBtn;
     private static final int RC_SIGN_IN = 1;
     private GoogleApiClient mGoogleApiClient;

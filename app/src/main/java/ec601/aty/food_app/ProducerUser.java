@@ -5,8 +5,8 @@ import java.util.Map;
 
 public class ProducerUser extends User
 {
-
     Map<String, Object> locationKeys;
+    Map<String, Long> interestedConsumers;
 
     public ProducerUser(AccountType accountType, String name)
     {
@@ -36,5 +36,15 @@ public class ProducerUser extends User
     public void setLocationKeys(Map<String, Object> locationKeys)
     {
         this.locationKeys = locationKeys;
+    }
+
+    public Map<String, Long> getInterestedConsumers()
+    {
+        return interestedConsumers;
+    }
+
+    public void setInterestedConsumers(Map<String, Long> interestedConsumers)
+    {
+        this.interestedConsumers = interestedConsumers;
     }
 }

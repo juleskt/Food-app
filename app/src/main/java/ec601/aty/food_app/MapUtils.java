@@ -45,7 +45,7 @@ public class MapUtils
             Map<String, String> geoFireKeyToProducerKeyPair = markerMap.get(clickedMarker.getId());
             geoFireKeyToProducerKeyPair.forEach((geoFireKey, producerKey) ->
             {
-
+                UserUtils.addConsumerAsInterestedInProducerFromPoint(geoFireKey, producerKey);
             });
         });
     }
