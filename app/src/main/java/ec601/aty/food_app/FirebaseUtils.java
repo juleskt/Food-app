@@ -57,7 +57,7 @@ public class FirebaseUtils
         );
     }
 
-    private static void displayMapPointOnMap(MapPoint mapPoint, Map<String, String> idMap)
+    private static void displayMapPointOnMap(MapPoint mapPoint, Map<String, MapPoint> idMap)
     {
         MapUtils.addMarkerToMap(
                 new MarkerOptions()
@@ -69,14 +69,14 @@ public class FirebaseUtils
     }
 
     // We need this mapping to identify which marker is clicked by a Consumer
-    private static Map<String, String> createGeoFireKeyToProducerKeyPair(MapPoint point, String key)
+    private static Map<String, MapPoint> createGeoFireKeyToProducerKeyPair(MapPoint point, String key)
     {
-        Map<String, String> keyToProducerMap = new HashMap<>();
-        keyToProducerMap.put(key, point.getPosterID());
+        Map<String, MapPoint> keyToProducerMap = new HashMap<>();
+        keyToProducerMap.put(key, point);
         return keyToProducerMap;
     }
 
-    public static void consumeDialogPublish(Context context, Dialog dialog, String geofireKey, String producerKey)
+    public static void consumeDialogPublish(Context context, Dialog dialog, String geofireKey, MapPoint mapPoint)
     {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String quantity_str = (((TextView) dialog.findViewById(R.id.consume_quantity_box)).getText().toString());
@@ -85,7 +85,15 @@ public class FirebaseUtils
         try
         {
             quantity = Double.parseDouble(quantity_str);
-        } catch (Exception e)
+            if (quantity <= 0.0 || quantity > mapPoint.getQuantity())
+            {
+               throw new Exception();
+            }
+
+            mapPoint.setQuantity(mapPoint.getQuantity() - quantity);
+            FirebaseUtils.updateMapPoint(geofireKey, mapPoint);
+        }
+        catch (Exception e)
         {
             Toast.makeText(context, "Please enter a valid input", Toast.LENGTH_LONG).show();
             return;
@@ -133,7 +141,6 @@ public class FirebaseUtils
         currentMapPoint.setUnit(unit);
         currentMapPoint.setQuantity(quantity);
 
-
         String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
         UserUtils.addPointForCurrentProducer(refKey, mAuth);
         FirebaseUtils.pushPointData(refKey, currentMapPoint);
@@ -146,5 +153,15 @@ public class FirebaseUtils
                 Toast.LENGTH_SHORT).show();
 
         currentMapPoint = null;
+    }
+
+    public static void updateMapPoint(String geofireKey, MapPoint pointToModify) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(POINT_DATA_NODE_PATH);
+
+        Map<String, Object> updatedMapPoint = new HashMap<>();
+        updatedMapPoint.put(geofireKey, pointToModify);
+        ref.updateChildren(updatedMapPoint);
     }
 }
