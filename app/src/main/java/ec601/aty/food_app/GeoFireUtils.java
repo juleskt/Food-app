@@ -20,7 +20,7 @@ import java.util.List;
 
 public class GeoFireUtils
 {
-    private static final String GEOFIRE_NODE_PATH = "geoFireAyy";
+    private static final String GEOFIRE_NODE_PATH = "geoFireData";
     private static GeoQuery geoQuery;
     private static List<String> geofireKeysList = new ArrayList<>();
 

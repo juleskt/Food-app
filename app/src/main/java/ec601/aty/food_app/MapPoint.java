@@ -13,6 +13,8 @@ public class MapPoint
     private long createdUnixTime;
     private long expiryUnixTime;
     private String posterID;
+    private double quantity;
+    private String unit;
 
     @Exclude
     private Map<String, String> keyProducerPair;
@@ -99,6 +101,26 @@ public class MapPoint
     public void setPosterID(String posterID)
     {
         this.posterID = posterID;
+    }
+
+    public double getQuantity()
+    {
+        return quantity;
+    }
+
+    public String getUnit()
+    {
+        return unit;
+    }
+
+    public void setQuantity(double inQuantity)
+    {
+        this.quantity = inQuantity;
+    }
+
+    public void setUnit(String inUnit)
+    {
+        this.unit = inUnit;
     }
 
     @Exclude
