@@ -175,7 +175,7 @@ public class MapsActivity extends FragmentActivity implements
         setUpMap();
         if (UserUtils.isCurrentUserConsumer())
         {
-            MapUtils.setUpHandlerForMarkerClicks(MapsActivity.this);
+            MapUtils.setUpHandlerForMarkerClicks(MapsActivity.this, mAuth);
         }
         displayLocation();
     }

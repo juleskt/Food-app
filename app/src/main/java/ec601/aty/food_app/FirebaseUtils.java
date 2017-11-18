@@ -2,7 +2,6 @@ package ec601.aty.food_app;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.util.Log;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,7 +21,7 @@ import java.util.Map;
 
 public class FirebaseUtils
 {
-    private static final String POINT_DATA_NODE_PATH = "pointData";
+    public static final String POINT_DATA_NODE_PATH = "pointData";
 
     public static void pushPointData(String key, MapPoint value)
     {
@@ -77,7 +76,7 @@ public class FirebaseUtils
         return keyToProducerMap;
     }
 
-    public static void consumeDialogPublish(Context context, Dialog dialog, Map<String, String> geoFireToProducer)
+    public static void consumeDialogPublish(Context context, Dialog dialog, String geofireKey, String producerKey)
     {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String quantity_str = (((TextView) dialog.findViewById(R.id.consume_quantity_box)).getText().toString());
@@ -88,7 +87,7 @@ public class FirebaseUtils
             quantity = Double.parseDouble(quantity_str);
         } catch (Exception e)
         {
-            Toast.makeText(context, "Please enter valid input", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Please enter a valid input", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -100,7 +99,7 @@ public class FirebaseUtils
     {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String validity = (((TextView) dialog.findViewById(R.id.hours_available)).getText().toString());
-        String quantity_str = (((TextView) dialog.findViewById(R.id.quantity_box)).getText().toString());
+        String quantity_str = (((TextView) dialog.findViewById(R.id.quantity_text_box)).getText().toString());
         if (validity.length() == 0)
         {
             // TODO: Maybe set error on the edittext instead of a toast?

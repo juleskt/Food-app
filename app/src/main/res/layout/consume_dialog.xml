@@ -18,26 +18,40 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="214dp"
-        android:layout_height="19dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/how_much_do_you_want_to_pickup"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"/>
-
-    <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/quantity_text_box"
         android:layout_width="wrap_content"
         android:layout_height="21dp"
         android:layout_marginEnd="104dp"
+        android:layout_marginStart="2dp"
         android:layout_marginTop="48dp"
         android:text="TextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/textView"
         app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/units_text_box_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="48dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/quantity_text_box"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="280dp"
+        android:layout_height="19dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/how_much_do_you_want_to_pickup"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"/>
 
     <EditText
         android:id="@+id/consume_quantity_box"
@@ -54,7 +68,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2"/>
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/units_text_box_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="68dp"
@@ -75,4 +89,5 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/consume_quantity_box"/>
+
 </android.support.constraint.ConstraintLayout>

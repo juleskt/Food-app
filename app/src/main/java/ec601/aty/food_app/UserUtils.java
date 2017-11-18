@@ -175,7 +175,7 @@ public class UserUtils
         return ((ProducerUser)currentUserSingleton).getLocationKeys();
     }
 
-    public static void addConsumerAsInterestedInProducerFromPoint(String geofireKey, String producerKey)
+    public static void addConsumerAsInterestedInProducerFromPoint(String geofireKey, String producerKey, FirebaseAuth mAuth)
     {
         // Registering the consumer as interested under the producer node in DB
         FirebaseDatabase database = FirebaseDatabase.getInstance();

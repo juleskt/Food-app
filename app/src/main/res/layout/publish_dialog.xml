@@ -15,11 +15,11 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="60dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/quantity_box"
+        app:layout_constraintStart_toEndOf="@+id/quantity_text_box"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <EditText
-        android:id="@+id/quantity_box"
+        android:id="@+id/quantity_text_box"
         android:layout_width="130dp"
         android:layout_height="52dp"
         android:layout_marginLeft="16dp"
