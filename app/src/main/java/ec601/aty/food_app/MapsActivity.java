@@ -146,15 +146,15 @@ public class MapsActivity extends FragmentActivity implements
                 PackageManager.PERMISSION_GRANTED)
         {
             LocationServices.getFusedLocationProviderClient(this).getLastLocation()
-                    .addOnSuccessListener(this, (location) ->
+                .addOnSuccessListener(this, (location) ->
+                {
+                    if (location != null)
                     {
-                        if (location != null)
-                        {
-                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-                            mMap.animateCamera(cameraUpdate);
-                        }
-                    });
+                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                        mMap.animateCamera(cameraUpdate);
+                    }
+                });
         }
     }
 
@@ -185,11 +185,22 @@ public class MapsActivity extends FragmentActivity implements
     {
         if (UserUtils.isCurrentUserProducer())
         {
-            currentMapPoint = new MapPoint(point.latitude, point.longitude);
-            mMap.addMarker(new MarkerOptions()
+            if ( !((ProducerUser)UserUtils.currentUserSingleton).checkIfProducerIsAtLimit() )
+            {
+                currentMapPoint = new MapPoint(point.latitude, point.longitude);
+                mMap.addMarker(new MarkerOptions()
                     .position(point)
                     .title("You are here")
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            }
+            else
+            {
+                Toast.makeText(
+                    MapsActivity.this,
+                    "You are currently at your point limit",
+                    Toast.LENGTH_SHORT)
+                .show();
+            }
         }
     }
 

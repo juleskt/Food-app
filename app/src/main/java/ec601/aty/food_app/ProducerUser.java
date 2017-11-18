@@ -1,11 +1,14 @@
 package ec601.aty.food_app;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.List;
 import java.util.Map;
 
 public class ProducerUser extends User
 {
-
+    @Exclude
+    private int PRODUCER_POINT_LIMIT = 1;
     Map<String, Object> locationKeys;
 
     public ProducerUser(AccountType accountType, String name)
@@ -36,5 +39,23 @@ public class ProducerUser extends User
     public void setLocationKeys(Map<String, Object> locationKeys)
     {
         this.locationKeys = locationKeys;
+    }
+
+    @Exclude
+    public boolean checkIfProducerIsAtLimit()
+    {
+        return locationKeys.size() >= PRODUCER_POINT_LIMIT;
+    }
+
+    @Exclude
+    public boolean addLocation(String geofireKey, MapPoint point)
+    {
+        if (!checkIfProducerIsAtLimit())
+        {
+            locationKeys.put(geofireKey, point);
+            return true;
+        }
+
+        return false;
     }
 }
