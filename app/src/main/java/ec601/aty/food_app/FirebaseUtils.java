@@ -1,7 +1,15 @@
 package ec601.aty.food_app;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.util.Log;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,9 +62,9 @@ public class FirebaseUtils
     {
         MapUtils.addMarkerToMap(
                 new MarkerOptions()
-                    .position(mapPoint.getCoordinates())
-                    .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(mapPoint.getExpiryUnixTime()))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)),
+                        .position(mapPoint.getCoordinates())
+                        .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(mapPoint.getExpiryUnixTime()))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)),
                 idMap
         );
     }
@@ -67,5 +75,77 @@ public class FirebaseUtils
         Map<String, String> keyToProducerMap = new HashMap<>();
         keyToProducerMap.put(key, point.getPosterID());
         return keyToProducerMap;
+    }
+
+    public static void consumeDialogPublish(Context context, Dialog dialog, Map<String, String> geoFireToProducer)
+    {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        String quantity_str = (((TextView) dialog.findViewById(R.id.consume_quantity_box)).getText().toString());
+
+        Double quantity;
+        try
+        {
+            quantity = Double.parseDouble(quantity_str);
+        } catch (Exception e)
+        {
+            Toast.makeText(context, "Please enter valid input", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Toast.makeText(context, "" + quantity_str, Toast.LENGTH_LONG).show();
+        dialog.dismiss();
+    }
+
+    public static void produceDialogPublish(Context context, Dialog dialog, MapPoint currentMapPoint)
+    {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        String validity = (((TextView) dialog.findViewById(R.id.hours_available)).getText().toString());
+        String quantity_str = (((TextView) dialog.findViewById(R.id.quantity_box)).getText().toString());
+        if (validity.length() == 0)
+        {
+            // TODO: Maybe set error on the edittext instead of a toast?
+            Toast.makeText(context, "Please enter how many hours your food will be available.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (quantity_str.length() == 0)
+        {
+            Toast.makeText(context, "Please enter how much food you will have available", Toast.LENGTH_LONG).show();
+            return;
+        }
+        int hours;
+        Double quantity;
+        try
+        {
+            hours = Integer.parseInt(validity);
+            quantity = Double.parseDouble(quantity_str);
+        } catch (Exception e)
+        {
+            Toast.makeText(context, "Please enter valid inputs", Toast.LENGTH_LONG).show();
+            return;
+        }
+        String unit = (((Spinner) dialog.findViewById(R.id.unit_selection)).getSelectedItem().toString());
+
+
+        long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
+
+        currentMapPoint.setCreatedUnixTime(currentCreatedTime);
+        currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, hours));
+        currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
+        currentMapPoint.setUnit(unit);
+        currentMapPoint.setQuantity(quantity);
+
+
+        String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
+        UserUtils.addPointForCurrentProducer(refKey, mAuth);
+        FirebaseUtils.pushPointData(refKey, currentMapPoint);
+
+        dialog.dismiss();
+
+        Toast.makeText(
+                context,
+                "Published point!",
+                Toast.LENGTH_SHORT).show();
+
+        currentMapPoint = null;
     }
 }
