@@ -24,6 +24,7 @@ import java.util.Map;
 public class MapUtils
 {
     private static GoogleMap mMap;
+    // Maps Google Marker IDs to geofireKey <-> MapPoint
     private static Map<String, Map<String, MapPoint>> markerMap = new HashMap<>();
 
     public static void setMap(GoogleMap gMap)
@@ -31,10 +32,10 @@ public class MapUtils
         mMap = gMap;
     }
 
-    public static void addMarkerToMap(MarkerOptions markerOption, Map<String, MapPoint> idMap)
+    public static void addMarkerToMap(MarkerOptions markerOption, Map<String, MapPoint> geofireKeyToPointMap)
     {
         Marker newMarker = mMap.addMarker(markerOption);
-        markerMap.put(newMarker.getId(), idMap);
+        markerMap.put(newMarker.getId(), geofireKeyToPointMap);
     }
 
     public static void addMarkersToMap(List<MarkerOptions> markerOptions)

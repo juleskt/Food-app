@@ -57,23 +57,23 @@ public class FirebaseUtils
         );
     }
 
-    private static void displayMapPointOnMap(MapPoint mapPoint, Map<String, MapPoint> idMap)
+    private static void displayMapPointOnMap(MapPoint mapPoint, Map<String, MapPoint> geofireKeyToPointMap)
     {
         MapUtils.addMarkerToMap(
-                new MarkerOptions()
-                        .position(mapPoint.getCoordinates())
-                        .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(mapPoint.getExpiryUnixTime()))
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)),
-                idMap
+            new MarkerOptions()
+                    .position(mapPoint.getCoordinates())
+                    .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(mapPoint.getExpiryUnixTime()))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)),
+            geofireKeyToPointMap
         );
     }
 
     // We need this mapping to identify which marker is clicked by a Consumer
     private static Map<String, MapPoint> createGeoFireKeyToProducerKeyPair(MapPoint point, String key)
     {
-        Map<String, MapPoint> keyToProducerMap = new HashMap<>();
-        keyToProducerMap.put(key, point);
-        return keyToProducerMap;
+        Map<String, MapPoint> geofireKeyToPointMap = new HashMap<>();
+        geofireKeyToPointMap.put(key, point);
+        return geofireKeyToPointMap;
     }
 
     public static void consumeDialogPublish(Context context, Dialog dialog, String geofireKey, MapPoint mapPoint)

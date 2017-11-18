@@ -194,8 +194,19 @@ public class UserUtils
                 .child(mAuth.getCurrentUser().getUid())
                 .child(CONSUMER_INTERESTED_IN_PRODUCERS_CHILD_PATH);
 
-        Map<String, Object> producerKeyToGeoFireKeyMap = new HashMap<>();
-        consumerKeyToGeoFireKeyMap.put(producerKey, geofireKey);
+        Map<String, Object> producerKeyToGeoFireKeyMap;
+        if ( ((ConsumerUser)currentUserSingleton).getInterestedPointKeys() == null )
+        {
+            producerKeyToGeoFireKeyMap = new HashMap<>();
+        }
+        else
+        {
+            producerKeyToGeoFireKeyMap = ((ConsumerUser)currentUserSingleton).getInterestedPointKeys();
+        }
+
+        producerKeyToGeoFireKeyMap.put(producerKey, geofireKey);
         newRef.updateChildren(producerKeyToGeoFireKeyMap);
+
+        ((ConsumerUser)currentUserSingleton).setInterestedPointKeys(producerKeyToGeoFireKeyMap);
     }
 }

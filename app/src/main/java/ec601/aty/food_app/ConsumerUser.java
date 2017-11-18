@@ -1,5 +1,7 @@
 package ec601.aty.food_app;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.Map;
 
 public class ConsumerUser extends User
