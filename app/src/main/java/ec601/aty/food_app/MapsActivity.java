@@ -261,7 +261,6 @@ public class MapsActivity extends FragmentActivity implements
                 public void onClick(View v)
                 {
                     FirebaseUtils.produceDialogPublish(MapsActivity.this, dialog, currentMapPoint);
-                    currentMapPoint = null;
                 }
             });
             dialog.show();

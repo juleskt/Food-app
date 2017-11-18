@@ -2,7 +2,6 @@ package ec601.aty.food_app;
 
 import com.google.firebase.database.Exclude;
 
-import java.util.List;
 import java.util.Map;
 
 public class ProducerUser extends User
@@ -44,7 +43,12 @@ public class ProducerUser extends User
     @Exclude
     public boolean checkIfProducerIsAtLimit()
     {
-        return locationKeys.size() >= PRODUCER_POINT_LIMIT;
+        if (locationKeys != null)
+        {
+            return locationKeys.size() >= PRODUCER_POINT_LIMIT;
+        }
+
+        return false;
     }
 
     @Exclude

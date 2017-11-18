@@ -119,22 +119,22 @@ public class FirebaseUtils
             Toast.makeText(context, "Please enter how much food you will have available", Toast.LENGTH_LONG).show();
             return;
         }
+
         int hours;
         Double quantity;
         try
         {
             hours = Integer.parseInt(validity);
             quantity = Double.parseDouble(quantity_str);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             Toast.makeText(context, "Please enter valid inputs", Toast.LENGTH_LONG).show();
             return;
         }
         String unit = (((Spinner) dialog.findViewById(R.id.unit_selection)).getSelectedItem().toString());
 
-
         long currentCreatedTime = DateAndTimeUtils.getCurrentUnixTime();
-
         currentMapPoint.setCreatedUnixTime(currentCreatedTime);
         currentMapPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(currentCreatedTime, hours));
         currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
@@ -151,8 +151,6 @@ public class FirebaseUtils
                 context,
                 "Published point!",
                 Toast.LENGTH_SHORT).show();
-
-        currentMapPoint = null;
     }
 
     public static void updateMapPoint(String geofireKey, MapPoint pointToModify) {
