@@ -103,7 +103,7 @@ public class MapsActivity extends FragmentActivity implements
 
         loginButton = findViewById(R.id.loginout);
 
-        if (mAuth.getCurrentUser().getUid() == null || UserUtils.currentUserSingleton == null)
+        if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         }
