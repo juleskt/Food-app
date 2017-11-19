@@ -105,7 +105,6 @@ public class LoginActivity extends AppCompatActivity
                 {
                     if (data.getKey().equals(mAuth.getCurrentUser().getUid()))
                     {
-
                         User foundUser = data.getValue(User.class);
                         switch (foundUser.getAccountType())
                         {

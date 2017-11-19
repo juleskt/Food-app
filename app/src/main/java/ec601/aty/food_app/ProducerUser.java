@@ -6,9 +6,9 @@ import java.util.Map;
 
 public class ProducerUser extends User
 {
-    @Exclude
     private int PRODUCER_POINT_LIMIT = 1;
     Map<String, Object> locationKeys;
+    Map<String, Object> interestedConsumers;
 
     public ProducerUser(AccountType accountType, String name)
     {
@@ -61,5 +61,15 @@ public class ProducerUser extends User
         }
 
         return false;
+    }
+
+    public Map<String, Object> getInterestedConsumers()
+    {
+        return interestedConsumers;
+    }
+
+    public void setInterestedConsumers(Map<String, Object> interestedConsumers)
+    {
+        this.interestedConsumers = interestedConsumers;
     }
 }
