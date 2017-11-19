@@ -1,9 +1,13 @@
 package ec601.aty.food_app;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -12,6 +16,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class UserUtils
 {
@@ -77,7 +84,6 @@ public class UserUtils
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot)
                 {
-                    Log.e("foor", "onDataChange: " + ProducerUser.class.getName());
                     currentUserSingleton = dataSnapshot.getValue(ProducerUser.class);
                 }
 
@@ -208,5 +214,128 @@ public class UserUtils
         newRef.updateChildren(producerKeyToGeoFireKeyMap);
 
         ((ConsumerUser)currentUserSingleton).setInterestedPointKeys(producerKeyToGeoFireKeyMap);
+    }
+
+    public static void setInterestedConsumerNotificationForProducer(NotificationManager notificationManager, Context context, FirebaseAuth mAuth)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference(PRODUCER_DATA_NODE_PATH);
+
+        if ( ((ProducerUser)currentUserSingleton).getInterestedConsumers() == null )
+        {
+            ref
+                .child(mAuth.getCurrentUser().getUid())
+                .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH)
+                .addChildEventListener(new ChildEventListener()
+                {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s)
+                    {
+                        Notification.Builder notification = new Notification.Builder(context)
+                                .setSmallIcon(R.drawable.ic_account_box_black_24dp)
+                                .setContentTitle("Food Reservation")
+                                .setDefaults(Notification.DEFAULT_ALL)
+                                .setPriority(Notification.PRIORITY_HIGH)
+                                .setAutoCancel(true);
+                        getConsumerNameForReservationNotification(notificationManager, notification, dataSnapshot.getKey());
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s)
+                    {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot)
+                    {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s)
+                    {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+
+                    }
+                });
+        }
+        else
+        {
+            TreeMap<String, Object> sortedInterestedConsumer = new TreeMap<>();
+            sortedInterestedConsumer.putAll( ((ProducerUser)currentUserSingleton).getInterestedConsumers() );
+
+            ref
+                .child(mAuth.getCurrentUser().getUid())
+                .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH)
+                .startAt(sortedInterestedConsumer.lastKey())
+                .addChildEventListener(new ChildEventListener()
+                {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s)
+                    {
+                        Notification.Builder notification = new Notification.Builder(context)
+                                .setSmallIcon(R.drawable.ic_account_box_black_24dp)
+                                .setContentTitle("Food Reservation")
+                                .setDefaults(Notification.DEFAULT_ALL)
+                                .setPriority(Notification.PRIORITY_HIGH)
+                                .setAutoCancel(true);
+
+                        getConsumerNameForReservationNotification(notificationManager, notification, dataSnapshot.getKey());
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s)
+                    {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot)
+                    {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s)
+                    {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+
+                    }
+                });
+        }
+    }
+
+    private static void getConsumerNameForReservationNotification(NotificationManager notificationManager, Notification.Builder notificationBuilder, String consumerKey)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        DatabaseReference ref = database.getReference(CONSUMER_DATA_NODE_PATH);
+        ref.child(consumerKey).addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+               String consumerName = dataSnapshot.getValue(ConsumerUser.class).getName();
+               notificationBuilder.setContentText(consumerName + " has reserved food.");
+               notificationManager.notify(0, notificationBuilder.build());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError firebaseError)
+            {
+                // @TODO: No network connectivity
+            }
+        });
     }
 }

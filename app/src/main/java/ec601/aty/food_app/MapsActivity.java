@@ -2,6 +2,7 @@ package ec601.aty.food_app;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -102,10 +103,11 @@ public class MapsActivity extends FragmentActivity implements
 
         loginButton = findViewById(R.id.loginout);
 
-        if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
+        if (mAuth.getCurrentUser().getUid() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-        } else
+        }
+        else
         {
             loginButton.setText(R.string.logout);
             UserUtils.getCurrentUserDetails(mAuth);
@@ -117,7 +119,12 @@ public class MapsActivity extends FragmentActivity implements
                 EditText radius = findViewById(R.id.radiusText);
                 radius.setVisibility(View.GONE);
 
-            } else
+                NotificationManager producerNotificationManager =
+                        (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+
+                UserUtils.setInterestedConsumerNotificationForProducer(producerNotificationManager, this, mAuth);
+            }
+            else
             {
                 Button publish = findViewById(R.id.sendLocationToFireBase);
                 publish.setVisibility(View.GONE);
@@ -422,5 +429,11 @@ public class MapsActivity extends FragmentActivity implements
     {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+
     }
 }
