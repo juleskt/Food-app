@@ -1,9 +1,14 @@
 package ec601.aty.food_app;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -216,13 +221,14 @@ public class UserUtils
         ((ConsumerUser)currentUserSingleton).setInterestedPointKeys(producerKeyToGeoFireKeyMap);
     }
 
+    @TargetApi(26)
     public static void setInterestedConsumerNotificationForProducer(NotificationManager notificationManager, Context context, FirebaseAuth mAuth)
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(PRODUCER_DATA_NODE_PATH);
 
-        if ( ((ProducerUser)currentUserSingleton).getInterestedConsumers() == null )
-        {
+//        if ( ((ProducerUser)currentUserSingleton).getInterestedConsumers() == null )
+//        {
             ref
                 .child(mAuth.getCurrentUser().getUid())
                 .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH)
@@ -231,12 +237,31 @@ public class UserUtils
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s)
                     {
+                        String channelID = "myChannel";
+                        NotificationChannel mChannel = null;
+
+                        int importance = NotificationManager.IMPORTANCE_HIGH;
+
                         Notification.Builder notification = new Notification.Builder(context)
-                                .setSmallIcon(R.drawable.ic_account_box_black_24dp)
-                                .setContentTitle("Food Reservation")
-                                .setDefaults(Notification.DEFAULT_ALL)
-                                .setPriority(Notification.PRIORITY_HIGH)
-                                .setAutoCancel(true);
+                                .setSmallIcon(R.drawable.ic_account_box_black_24dp);
+
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+                        {
+                            notification.setContentTitle("Food Reservation")
+                                    .setDefaults(Notification.DEFAULT_ALL)
+                                    .setPriority(Notification.PRIORITY_HIGH)
+                                    .setAutoCancel(true);
+                        }
+                        else
+                        {
+                           mChannel = new NotificationChannel(channelID, "Food Reservation", importance);
+                           mChannel.enableVibration(true);
+                           mChannel.enableLights(true);
+                           mChannel.setLightColor(Color.BLUE);
+                           notificationManager.createNotificationChannel(mChannel);
+                        }
+
+                        notification.setChannelId(channelID);
                         getConsumerNameForReservationNotification(notificationManager, notification, dataSnapshot.getKey());
                     }
 
@@ -264,8 +289,8 @@ public class UserUtils
 
                     }
                 });
-        }
-        else
+     //   }
+/*        else
         {
             TreeMap<String, Object> sortedInterestedConsumer = new TreeMap<>();
             sortedInterestedConsumer.putAll( ((ProducerUser)currentUserSingleton).getInterestedConsumers() );
@@ -313,7 +338,7 @@ public class UserUtils
 
                     }
                 });
-        }
+        }*/
     }
 
     private static void getConsumerNameForReservationNotification(NotificationManager notificationManager, Notification.Builder notificationBuilder, String consumerKey)
