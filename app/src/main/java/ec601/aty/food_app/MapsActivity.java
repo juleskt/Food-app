@@ -103,7 +103,7 @@ public class MapsActivity extends FragmentActivity implements
 
         loginButton = findViewById(R.id.loginout);
 
-        if (mAuth.getCurrentUser().getUid() == null || UserUtils.currentUserSingleton == null)
+        if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         }
@@ -220,7 +220,8 @@ public class MapsActivity extends FragmentActivity implements
             {
                 loginButton.setText(R.string.logout);
             }
-        } else
+        }
+        else
         {
             UserUtils.safeSignOut(mAuth);
             Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
@@ -429,11 +430,5 @@ public class MapsActivity extends FragmentActivity implements
     {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-
     }
 }
