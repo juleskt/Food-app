@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,76 +68,83 @@ public class MapsActivity extends FragmentActivity implements
     private TextView userEmail;
     private EditText radiusText;
 
+    private ListView mDrawerList;
+    private ArrayAdapter<String> mAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.new_activity_maps);
 
+        mDrawerList = (ListView)findViewById(R.id.navigation_drawer_list);
+
+        String[] osArray = { "Android", "iOS", "Windows", "OS X", "Linux" };
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
+        mDrawerList.setAdapter(mAdapter);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-
-        //Making sure Google maps is gucci
-        if (checkPlayServices())
-        {
-            // Building the GoogleApi client
-            buildGoogleApiClient();
-        }
-
-        mAuth = FirebaseAuth.getInstance();
-        mAuthListener = new FirebaseAuth.AuthStateListener()
-        {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
-            {
-                if (firebaseAuth.getCurrentUser() != null)
-                {
-                    userEmail = (TextView) findViewById(R.id.userEmail);
-                    userEmail.setText(mAuth.getCurrentUser().getEmail());
-                } else
-                {
-                    UserUtils.currentUserSingleton = null;
-                }
-            }
-        };
-
-        loginButton = findViewById(R.id.loginout);
-
-        if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
-        {
-            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-        }
-        else
-        {
-            loginButton.setText(R.string.logout);
-            UserUtils.getCurrentUserDetails(mAuth);
-            if (UserUtils.isCurrentUserProducer())
-            {
-                Button locations = findViewById(R.id.findLocations);
-                locations.setVisibility(View.GONE);
-
-                EditText radius = findViewById(R.id.radiusText);
-                radius.setVisibility(View.GONE);
-
-                NotificationManager producerNotificationManager =
-                        (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-
-                UserUtils.setInterestedConsumerNotificationForProducer(producerNotificationManager, this, mAuth);
-            }
-            else
-            {
-                Button publish = findViewById(R.id.sendLocationToFireBase);
-                publish.setVisibility(View.GONE);
-            }
-        }
-
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                FINE_LOCATION_PERMISSION);
-
-        mapFragment.getMapAsync(this);
+//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+//                .findFragmentById(R.id.map);
+//
+//        //Making sure Google maps is gucci
+//        if (checkPlayServices())
+//        {
+//            // Building the GoogleApi client
+//            buildGoogleApiClient();
+//        }
+//
+//        mAuth = FirebaseAuth.getInstance();
+//        mAuthListener = new FirebaseAuth.AuthStateListener()
+//        {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
+//            {
+//                if (firebaseAuth.getCurrentUser() != null)
+//                {
+//                    userEmail = (TextView) findViewById(R.id.userEmail);
+//                    userEmail.setText(mAuth.getCurrentUser().getEmail());
+//                } else
+//                {
+//                    UserUtils.currentUserSingleton = null;
+//                }
+//            }
+//        };
+//
+//        loginButton = findViewById(R.id.loginout);
+//
+//        if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
+//        {
+//            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+//        }
+//        else
+//        {
+//            loginButton.setText(R.string.logout);
+//            UserUtils.getCurrentUserDetails(mAuth);
+//            if (UserUtils.isCurrentUserProducer())
+//            {
+//                Button locations = findViewById(R.id.findLocations);
+//                locations.setVisibility(View.GONE);
+//
+//                EditText radius = findViewById(R.id.radiusText);
+//                radius.setVisibility(View.GONE);
+//
+//                NotificationManager producerNotificationManager =
+//                        (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+//
+//                UserUtils.setInterestedConsumerNotificationForProducer(producerNotificationManager, this, mAuth);
+//            }
+//            else
+//            {
+//                Button publish = findViewById(R.id.sendLocationToFireBase);
+//                publish.setVisibility(View.GONE);
+//            }
+//        }
+//
+//        ActivityCompat.requestPermissions(
+//                this,
+//                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                FINE_LOCATION_PERMISSION);
+//
+//        mapFragment.getMapAsync(this);
     }
 
     @Override
