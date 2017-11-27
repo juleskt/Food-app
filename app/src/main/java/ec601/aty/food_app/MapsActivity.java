@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.LatLng;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -68,19 +69,19 @@ public class MapsActivity extends FragmentActivity implements
     private TextView userEmail;
     private EditText radiusText;
 
+    //Stuff for the navigation drawer
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_activity_maps);
 
-        mDrawerList = (ListView)findViewById(R.id.navigation_drawer_list);
+        mDrawerList = (ListView) findViewById(R.id.navigation_drawer_list);
 
-        String[] osArray = { "Android", "iOS", "Windows", "OS X", "Linux" };
-        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
-        mDrawerList.setAdapter(mAdapter);
+        addDrawerItems();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 //        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
 //                .findFragmentById(R.id.map);
@@ -161,15 +162,15 @@ public class MapsActivity extends FragmentActivity implements
                 PackageManager.PERMISSION_GRANTED)
         {
             LocationServices.getFusedLocationProviderClient(this).getLastLocation()
-                .addOnSuccessListener(this, (location) ->
-                {
-                    if (location != null)
+                    .addOnSuccessListener(this, (location) ->
                     {
-                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-                        mMap.animateCamera(cameraUpdate);
-                    }
-                });
+                        if (location != null)
+                        {
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                            mMap.animateCamera(cameraUpdate);
+                        }
+                    });
         }
     }
 
@@ -200,21 +201,20 @@ public class MapsActivity extends FragmentActivity implements
     {
         if (UserUtils.isCurrentUserProducer())
         {
-            if ( !((ProducerUser)UserUtils.currentUserSingleton).checkIfProducerIsAtLimit() )
+            if (!((ProducerUser) UserUtils.currentUserSingleton).checkIfProducerIsAtLimit())
             {
                 currentMapPoint = new MapPoint(point.latitude, point.longitude);
                 mMap.addMarker(new MarkerOptions()
-                    .position(point)
-                    .title("You are here")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-            }
-            else
+                        .position(point)
+                        .title("You are here")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            } else
             {
                 Toast.makeText(
-                    MapsActivity.this,
-                    "You are currently at your point limit",
-                    Toast.LENGTH_SHORT)
-                .show();
+                        MapsActivity.this,
+                        "You are currently at your point limit",
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
         }
     }
@@ -228,8 +228,7 @@ public class MapsActivity extends FragmentActivity implements
             {
                 loginButton.setText(R.string.logout);
             }
-        }
-        else
+        } else
         {
             UserUtils.safeSignOut(mAuth);
             Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
@@ -438,5 +437,20 @@ public class MapsActivity extends FragmentActivity implements
     {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    private void addDrawerItems()
+    {
+        String[] osArray = {"Android", "iOS", "Windows", "OS X", "Linux"};
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
+        mDrawerList.setAdapter(mAdapter);
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                Toast.makeText(MapsActivity.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
