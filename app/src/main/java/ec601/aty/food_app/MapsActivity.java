@@ -3,7 +3,6 @@ package ec601.aty.food_app;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -23,7 +22,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -37,12 +35,6 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-
-import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Date;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -65,7 +57,6 @@ public class MapsActivity extends FragmentActivity implements
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
     private static final String TAG = "MAPS_ACTIVITY";
 
-    private Button loginButton;
     private TextView userEmail;
     private EditText radiusText;
 
@@ -77,75 +68,70 @@ public class MapsActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.new_activity_maps);
-
+        setContentView(R.layout.activity_maps);
         mDrawerList = (ListView) findViewById(R.id.navigation_drawer_list);
 
-        addDrawerItems();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//
-//        //Making sure Google maps is gucci
-//        if (checkPlayServices())
-//        {
-//            // Building the GoogleApi client
-//            buildGoogleApiClient();
-//        }
-//
-//        mAuth = FirebaseAuth.getInstance();
-//        mAuthListener = new FirebaseAuth.AuthStateListener()
-//        {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
-//            {
-//                if (firebaseAuth.getCurrentUser() != null)
-//                {
-//                    userEmail = (TextView) findViewById(R.id.userEmail);
-//                    userEmail.setText(mAuth.getCurrentUser().getEmail());
-//                } else
-//                {
-//                    UserUtils.currentUserSingleton = null;
-//                }
-//            }
-//        };
-//
-//        loginButton = findViewById(R.id.loginout);
-//
-//        if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
-//        {
-//            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-//        }
-//        else
-//        {
-//            loginButton.setText(R.string.logout);
-//            UserUtils.getCurrentUserDetails(mAuth);
-//            if (UserUtils.isCurrentUserProducer())
-//            {
-//                Button locations = findViewById(R.id.findLocations);
-//                locations.setVisibility(View.GONE);
-//
-//                EditText radius = findViewById(R.id.radiusText);
-//                radius.setVisibility(View.GONE);
-//
-//                NotificationManager producerNotificationManager =
-//                        (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-//
-//                UserUtils.setInterestedConsumerNotificationForProducer(producerNotificationManager, this, mAuth);
-//            }
-//            else
-//            {
-//                Button publish = findViewById(R.id.sendLocationToFireBase);
-//                publish.setVisibility(View.GONE);
-//            }
-//        }
-//
-//        ActivityCompat.requestPermissions(
-//                this,
-//                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                FINE_LOCATION_PERMISSION);
-//
-//        mapFragment.getMapAsync(this);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+
+        //Making sure Google maps is gucci
+        if (checkPlayServices())
+        {
+            // Building the GoogleApi client
+            buildGoogleApiClient();
+        }
+
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener()
+        {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)
+            {
+                if (firebaseAuth.getCurrentUser() != null)
+                {
+                    userEmail = (TextView) findViewById(R.id.userEmail);
+                    userEmail.setText(mAuth.getCurrentUser().getEmail());
+                } else
+                {
+                    UserUtils.currentUserSingleton = null;
+                }
+            }
+        };
+
+
+        if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
+        {
+            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+        } else
+        {
+            UserUtils.getCurrentUserDetails(mAuth);
+            if (UserUtils.isCurrentUserProducer())
+            {
+                Button locations = findViewById(R.id.findLocations);
+                locations.setVisibility(View.GONE);
+
+                EditText radius = findViewById(R.id.radiusText);
+                radius.setVisibility(View.GONE);
+
+                NotificationManager producerNotificationManager =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+                UserUtils.setInterestedConsumerNotificationForProducer(producerNotificationManager, this, mAuth);
+            } else
+            {
+                Button publish = findViewById(R.id.sendLocationToFireBase);
+                publish.setVisibility(View.GONE);
+            }
+            addDrawerItems();
+        }
+
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                FINE_LOCATION_PERMISSION);
+
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -216,26 +202,6 @@ public class MapsActivity extends FragmentActivity implements
                         Toast.LENGTH_SHORT)
                         .show();
             }
-        }
-    }
-
-    public void onMapLoginClick(View view)
-    {
-        if (mAuth.getCurrentUser() == null)
-        {
-            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-            if (mAuth.getCurrentUser() != null)
-            {
-                loginButton.setText(R.string.logout);
-            }
-        } else
-        {
-            UserUtils.safeSignOut(mAuth);
-            Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
-            userEmail = findViewById(R.id.userEmail);
-            userEmail.setText(R.string.none);
-            loginButton.setText(R.string.login);
-            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         }
     }
 
@@ -441,7 +407,7 @@ public class MapsActivity extends FragmentActivity implements
 
     private void addDrawerItems()
     {
-        String[] osArray = {"Android", "iOS", "Windows", "OS X", "Linux"};
+        String[] osArray = {mAuth.getCurrentUser().getEmail(), "Manage Food", getString(R.string.logout)};
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
         mDrawerList.setAdapter(mAdapter);
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -449,7 +415,16 @@ public class MapsActivity extends FragmentActivity implements
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                Toast.makeText(MapsActivity.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
+                // Todo: Determine a better way to do this instead of hardcoded method
+                if (position == 2)
+                {
+                    UserUtils.safeSignOut(mAuth);
+                    Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+                } else
+                {
+                    Toast.makeText(MapsActivity.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
