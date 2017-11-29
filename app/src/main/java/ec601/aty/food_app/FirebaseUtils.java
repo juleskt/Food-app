@@ -76,9 +76,8 @@ public class FirebaseUtils
         return geofireKeyToPointMap;
     }
 
-    public static void consumeDialogPublish(Context context, Dialog dialog, String geofireKey, MapPoint mapPoint)
+    public static double consumeDialogPublish(Context context, Dialog dialog, String geofireKey, MapPoint mapPoint)
     {
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String quantity_str = (((TextView) dialog.findViewById(R.id.consume_quantity_box)).getText().toString());
 
         Double quantity;
@@ -96,11 +95,13 @@ public class FirebaseUtils
         catch (Exception e)
         {
             Toast.makeText(context, "Please enter a valid input", Toast.LENGTH_LONG).show();
-            return;
+            return 0.0;
         }
 
         Toast.makeText(context, "" + quantity_str, Toast.LENGTH_LONG).show();
         dialog.dismiss();
+
+        return quantity;
     }
 
     public static void produceDialogPublish(Context context, Dialog dialog, MapPoint currentMapPoint)
@@ -140,6 +141,7 @@ public class FirebaseUtils
         currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
         currentMapPoint.setUnit(unit);
         currentMapPoint.setQuantity(quantity);
+        currentMapPoint.setProducerName(UserUtils.currentUserSingleton.getName());
 
         String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
         UserUtils.addPointForCurrentProducer(refKey, mAuth);

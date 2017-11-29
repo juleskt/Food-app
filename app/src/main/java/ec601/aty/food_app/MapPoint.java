@@ -15,6 +15,7 @@ public class MapPoint
     private String posterID;
     private double quantity;
     private String unit;
+    private String producerName;
 
     @Exclude
     private Map<String, String> keyProducerPair;
@@ -134,4 +135,16 @@ public class MapPoint
     {
         this.keyProducerPair = keyProducerPair;
     }
+
+
+    public String getProducerName()
+    {
+        return producerName;
+    }
+
+    public void setProducerName(String producerName)
+    {
+        this.producerName = producerName;
+    }
+
 }

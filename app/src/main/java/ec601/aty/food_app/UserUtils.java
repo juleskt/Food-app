@@ -19,7 +19,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -186,13 +188,13 @@ public class UserUtils
         return ((ProducerUser)currentUserSingleton).getLocationKeys();
     }
 
-    public static void addConsumerAsInterestedInProducerFromPoint(String geofireKey, String producerKey, FirebaseAuth mAuth)
+    public static void addConsumerAsInterestedInProducerFromPoint(String geofireKey, MapPoint point, FirebaseAuth mAuth, double reservationAmoount)
     {
         // Registering the consumer as interested under the producer node in DB
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database
                 .getReference(PRODUCER_DATA_NODE_PATH)
-                .child(producerKey)
+                .child(point.getPosterID())
                 .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH);
 
         Map<String, Object> consumerKeyToGeoFireKeyMap = new HashMap<>();
@@ -215,7 +217,12 @@ public class UserUtils
             producerKeyToGeoFireKeyMap = ((ConsumerUser)currentUserSingleton).getInterestedPointKeys();
         }
 
-        producerKeyToGeoFireKeyMap.put(producerKey, geofireKey);
+        Map<String, Object> keyMap = new HashMap<>();
+        keyMap.put("producerName", point.getProducerName());
+        keyMap.put("mapPointKey", geofireKey);
+        keyMap.put("reservationAmount", reservationAmoount);
+
+        producerKeyToGeoFireKeyMap.put(point.getPosterID(), keyMap);
         newRef.updateChildren(producerKeyToGeoFireKeyMap);
 
         ((ConsumerUser)currentUserSingleton).setInterestedPointKeys(producerKeyToGeoFireKeyMap);
