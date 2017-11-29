@@ -111,9 +111,9 @@ public class MapUtils
                 {
                     geoFireKeyToMapPointPair.forEach((geoFireKey, mapPoint) ->
                     {
-                        double reservationAmount = FirebaseUtils.consumeDialogPublish(maps_activity, consumer_dialog, geoFireKey,  mapPoint);
+                        long reservationAmount = FirebaseUtils.consumeDialogPublish(maps_activity, consumer_dialog, geoFireKey,  mapPoint);
 
-                        if (reservationAmount > 0.0)
+                        if (reservationAmount > 0)
                         {
                             UserUtils.addConsumerAsInterestedInProducerFromPoint(geoFireKey, mapPoint, mAuth, reservationAmount);
                         }

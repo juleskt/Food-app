@@ -5,11 +5,8 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -19,13 +16,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class UserUtils
 {
@@ -188,7 +180,7 @@ public class UserUtils
         return ((ProducerUser)currentUserSingleton).getLocationKeys();
     }
 
-    public static void addConsumerAsInterestedInProducerFromPoint(String geofireKey, MapPoint point, FirebaseAuth mAuth, double reservationAmoount)
+    public static void addConsumerAsInterestedInProducerFromPoint(String geofireKey, MapPoint point, FirebaseAuth mAuth, long reservationAmount)
     {
         // Registering the consumer as interested under the producer node in DB
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -207,25 +199,40 @@ public class UserUtils
                 .child(mAuth.getCurrentUser().getUid())
                 .child(CONSUMER_INTERESTED_IN_PRODUCERS_CHILD_PATH);
 
-        Map<String, Object> producerKeyToGeoFireKeyMap;
-        if ( ((ConsumerUser)currentUserSingleton).getInterestedPointKeys() == null )
+        Map<String, Object> producerKeyToPointDataMap;
+        if ( ((ConsumerUser)currentUserSingleton).getInterestedInProducerList() == null )
         {
-            producerKeyToGeoFireKeyMap = new HashMap<>();
+            producerKeyToPointDataMap = new HashMap<>();
         }
         else
         {
-            producerKeyToGeoFireKeyMap = ((ConsumerUser)currentUserSingleton).getInterestedPointKeys();
+            producerKeyToPointDataMap = ((ConsumerUser)currentUserSingleton).getInterestedInProducerList();
         }
 
-        Map<String, Object> keyMap = new HashMap<>();
-        keyMap.put("producerName", point.getProducerName());
-        keyMap.put("mapPointKey", geofireKey);
-        keyMap.put("reservationAmount", reservationAmoount);
+        Map.Entry<String, Object> existingEntryForProducer = producerKeyToPointDataMap.entrySet().stream()
+                .filter(mapElement -> mapElement.getKey().equals(point.getPosterID()))
+                .findAny()
+                .orElse(null);
 
-        producerKeyToGeoFireKeyMap.put(point.getPosterID(), keyMap);
-        newRef.updateChildren(producerKeyToGeoFireKeyMap);
+        if (existingEntryForProducer != null)
+        {
+            if (existingEntryForProducer.getValue() instanceof HashMap)
+            {
+                long oldReservationValue = (long)((HashMap) existingEntryForProducer.getValue()).get("reservationAmount");
+                ((HashMap)existingEntryForProducer.getValue()).put("reservationAmount", oldReservationValue + reservationAmount);
+            }
+        }
+        else
+        {
+            Map<String, Object> keyMap = new HashMap<>();
+            keyMap.put("producerName", point.getProducerName());
+            keyMap.put("mapPointKey", geofireKey);
+            keyMap.put("reservationAmount", reservationAmount);
+            producerKeyToPointDataMap.put(point.getPosterID(), keyMap);
+        }
 
-        ((ConsumerUser)currentUserSingleton).setInterestedPointKeys(producerKeyToGeoFireKeyMap);
+        newRef.updateChildren(producerKeyToPointDataMap);
+        ((ConsumerUser)currentUserSingleton).setInterestedInProducerList(producerKeyToPointDataMap);
     }
 
     @TargetApi(26)
@@ -266,9 +273,8 @@ public class UserUtils
                            mChannel.enableLights(true);
                            mChannel.setLightColor(Color.BLUE);
                            notificationManager.createNotificationChannel(mChannel);
+                           notification.setChannelId(channelID);
                         }
-
-                        notification.setChannelId(channelID);
                         getConsumerNameForReservationNotification(notificationManager, notification, dataSnapshot.getKey());
                     }
 

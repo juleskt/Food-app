@@ -13,7 +13,7 @@ public class MapPoint
     private long createdUnixTime;
     private long expiryUnixTime;
     private String posterID;
-    private double quantity;
+    private long quantity;
     private String unit;
     private String producerName;
 
@@ -104,7 +104,7 @@ public class MapPoint
         this.posterID = posterID;
     }
 
-    public double getQuantity()
+    public long getQuantity()
     {
         return quantity;
     }
@@ -114,7 +114,7 @@ public class MapPoint
         return unit;
     }
 
-    public void setQuantity(double inQuantity)
+    public void setQuantity(long inQuantity)
     {
         this.quantity = inQuantity;
     }

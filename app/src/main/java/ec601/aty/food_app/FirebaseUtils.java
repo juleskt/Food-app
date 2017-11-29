@@ -76,15 +76,15 @@ public class FirebaseUtils
         return geofireKeyToPointMap;
     }
 
-    public static double consumeDialogPublish(Context context, Dialog dialog, String geofireKey, MapPoint mapPoint)
+    public static long consumeDialogPublish(Context context, Dialog dialog, String geofireKey, MapPoint mapPoint)
     {
         String quantity_str = (((TextView) dialog.findViewById(R.id.consume_quantity_box)).getText().toString());
 
-        Double quantity;
+        long quantity;
         try
         {
-            quantity = Double.parseDouble(quantity_str);
-            if (quantity <= 0.0 || quantity > mapPoint.getQuantity())
+            quantity = Long.parseLong(quantity_str);
+            if (quantity <= 0 || quantity > mapPoint.getQuantity())
             {
                throw new Exception();
             }
@@ -95,7 +95,7 @@ public class FirebaseUtils
         catch (Exception e)
         {
             Toast.makeText(context, "Please enter a valid input", Toast.LENGTH_LONG).show();
-            return 0.0;
+            return 0;
         }
 
         Toast.makeText(context, "" + quantity_str, Toast.LENGTH_LONG).show();
@@ -122,15 +122,15 @@ public class FirebaseUtils
         }
 
         int hours;
-        Double quantity;
+        long quantity;
         try
         {
             hours = Integer.parseInt(validity);
-            quantity = Double.parseDouble(quantity_str);
+            quantity = Integer.parseInt(quantity_str);
         }
         catch (Exception e)
         {
-            Toast.makeText(context, "Please enter valid inputs", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Please enter valid integer inputs", Toast.LENGTH_LONG).show();
             return;
         }
         String unit = (((Spinner) dialog.findViewById(R.id.unit_selection)).getSelectedItem().toString());
