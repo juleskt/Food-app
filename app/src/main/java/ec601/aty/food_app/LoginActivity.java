@@ -70,7 +70,7 @@ public class LoginActivity extends AppCompatActivity
                 if (firebaseAuth.getCurrentUser() != null)
                 {
                     searchForExistingUser();
-                    Toast.makeText(LoginActivity.this, "Signing In", Toast.LENGTH_LONG).show();
+                //    Toast.makeText(LoginActivity.this, "Signing In", Toast.LENGTH_LONG).show();
                     startActivity(new Intent(LoginActivity.this, MapsActivity.class));
                 }
                 else if (firebaseAuth.getCurrentUser() == null)
