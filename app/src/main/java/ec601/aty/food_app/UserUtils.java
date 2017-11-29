@@ -211,7 +211,7 @@ public class UserUtils
 
         Map.Entry<String, Object> existingEntryForProducer = producerKeyToPointDataMap.entrySet().stream()
                 .filter(mapElement -> mapElement.getKey().equals(point.getPosterID()))
-                .findAny()
+                .findFirst()
                 .orElse(null);
 
         if (existingEntryForProducer != null)
