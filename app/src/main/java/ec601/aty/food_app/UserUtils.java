@@ -180,7 +180,7 @@ public class UserUtils
         return ((ProducerUser)currentUserSingleton).getLocationKeys();
     }
 
-    public static void addConsumerAsInterestedInProducerFromPoint(String geofireKey, MapPoint point, FirebaseAuth mAuth, long reservationAmount)
+    public static void registerProducerAsInterestForConsumerFromPoint(String geofireKey, MapPoint point, FirebaseAuth mAuth, long reservationAmount)
     {
         // Registering the consumer as interested under the producer node in DB
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -228,11 +228,45 @@ public class UserUtils
             keyMap.put("producerName", point.getProducerName());
             keyMap.put("mapPointKey", geofireKey);
             keyMap.put("reservationAmount", reservationAmount);
+            keyMap.put("unit", point.getUnit());
             producerKeyToPointDataMap.put(point.getPosterID(), keyMap);
         }
 
         newRef.updateChildren(producerKeyToPointDataMap);
         ((ConsumerUser)currentUserSingleton).setInterestedInProducerList(producerKeyToPointDataMap);
+    }
+
+    public static void getInterestedConsumers(FirebaseAuth mAuth)
+    {
+        if (isCurrentUserProducer())
+        {
+            String producerID = mAuth.getCurrentUser().getUid();
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference ref = database
+                    .getReference(PRODUCER_DATA_NODE_PATH)
+                    .child(mAuth.getCurrentUser().getUid())
+                    .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH);
+
+                ref.addValueEventListener(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+
+                    }
+                });
+        }
+        else
+        {
+            return;
+        }
     }
 
     @TargetApi(26)

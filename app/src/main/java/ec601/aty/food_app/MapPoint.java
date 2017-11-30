@@ -16,6 +16,7 @@ public class MapPoint
     private long quantity;
     private String unit;
     private String producerName;
+    Map<String, Object> interestedConsumers;
 
     @Exclude
     private Map<String, String> keyProducerPair;
@@ -147,4 +148,14 @@ public class MapPoint
         this.producerName = producerName;
     }
 
+
+    public Map<String, Object> getInterestedConsumers()
+    {
+        return interestedConsumers;
+    }
+
+    public void setInterestedConsumers(Map<String, Object> interestedConsumers)
+    {
+        this.interestedConsumers = interestedConsumers;
+    }
 }

@@ -115,7 +115,8 @@ public class MapUtils
 
                         if (reservationAmount > 0)
                         {
-                            UserUtils.addConsumerAsInterestedInProducerFromPoint(geoFireKey, mapPoint, mAuth, reservationAmount);
+                            UserUtils.registerProducerAsInterestForConsumerFromPoint(geoFireKey, mapPoint, mAuth, reservationAmount);
+                            FirebaseUtils.registerInterestedConsumerUnderPoint(geoFireKey, mAuth, reservationAmount);
                         }
                     });
                 }

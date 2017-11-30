@@ -164,4 +164,41 @@ public class FirebaseUtils
         updatedMapPoint.put(geofireKey, pointToModify);
         ref.updateChildren(updatedMapPoint);
     }
+
+    public static void registerInterestedConsumerUnderPoint(String geofireKey, FirebaseAuth mAuth, long reservationAmount)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(POINT_DATA_NODE_PATH);
+
+        ref.child(geofireKey).addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                MapPoint pointAssociatedWithProducer = dataSnapshot.getValue(MapPoint.class);
+
+                Map<String, Object> consumerInfoMap = new HashMap<>();
+                consumerInfoMap.put("consumerName", UserUtils.currentUserSingleton.getName());
+                consumerInfoMap.put("reservationAmount", reservationAmount);
+
+                pointAssociatedWithProducer.setInterestedConsumers(consumerInfoMap);
+
+                DatabaseReference pointRef = database
+                        .getReference(POINT_DATA_NODE_PATH)
+                        .child(geofireKey);
+
+                Map<String, Object> pointObject = new HashMap<>();
+                pointObject.put(geofireKey, pointAssociatedWithProducer);
+                pointRef.updateChildren(pointObject);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+
+    }
 }
