@@ -2,6 +2,7 @@ package ec601.aty.food_app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -213,10 +214,18 @@ public class FirebaseUtils
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-               MapPoint producerPoint = dataSnapshot.getValue(MapPoint.class);
-               Map<String, Object> interestedConsumers = producerPoint.getInterestedConsumers();
+                MapPoint producerPoint = dataSnapshot.getValue(MapPoint.class);
 
-               // @TODO ANISH: POPULATE PRODUCER MANAGE UI WITH INTERESTED CONSUMER STUFF. THE MAP WILL HAVE CONSUMER NAMES TO RESERVATION AMOUNT MAPPINGS
+                // @TODO ANISH: Point should have every thing you need for management
+
+                try
+                {
+                    Map<String, Object> interestedConsumers = producerPoint.getInterestedConsumers();
+                }
+                catch (NullPointerException e)
+                {
+                    // No interested consumers :(
+                }
             }
 
             @Override

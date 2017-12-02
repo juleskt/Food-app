@@ -22,6 +22,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.support.v4.content.ContextCompat;
+import android.view.DragEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -103,7 +105,8 @@ public class MapsActivity extends FragmentActivity implements
         if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-        } else
+        }
+        else
         {
             UserUtils.getCurrentUserDetails(mAuth);
             if (UserUtils.isCurrentUserProducer())
@@ -118,7 +121,8 @@ public class MapsActivity extends FragmentActivity implements
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
                 UserUtils.setInterestedConsumerNotificationForProducer(producerNotificationManager, this, mAuth);
-            } else
+            }
+            else
             {
                 Button publish = findViewById(R.id.sendLocationToFireBase);
                 publish.setVisibility(View.GONE);
@@ -194,7 +198,8 @@ public class MapsActivity extends FragmentActivity implements
                         .position(point)
                         .title("You are here")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-            } else
+            }
+            else
             {
                 Toast.makeText(
                         MapsActivity.this,
@@ -247,7 +252,6 @@ public class MapsActivity extends FragmentActivity implements
             dialog.show();
         }
     }
-
 
     public void onMapFindLocationsClick(View view)
     {
@@ -419,6 +423,12 @@ public class MapsActivity extends FragmentActivity implements
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
+                // Refresh current user data after adding point
+                UserUtils.searchForForUserTypeData(mAuth, UserUtils.currentUserSingleton);
+
+                // Refresh current user data after adding point
+                UserUtils.searchForForUserTypeData(mAuth, UserUtils.currentUserSingleton);
+
                 // Todo: Determine a better way to do this instead of hardcoded method
                 if (position == LOGOUT_NAVIGATION_ITEM)
                 {
@@ -430,7 +440,12 @@ public class MapsActivity extends FragmentActivity implements
                 {
                     if (UserUtils.isCurrentUserProducer())
                     {
-                        UserUtils.getInterestedConsumersForProducerManage();
+                        UserUtils.getPointDataForProducerManage();
+
+                    }
+                    else if (UserUtils.isCurrentUserConsumer())
+                    {
+                        UserUtils.getProducerDataForConsumerManage();
                     }
                 }
                 else

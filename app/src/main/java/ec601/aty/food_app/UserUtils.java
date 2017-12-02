@@ -238,15 +238,38 @@ public class UserUtils
         ((ConsumerUser)currentUserSingleton).setInterestedInProducerList(producerKeyToPointDataMap);
     }
 
-    public static void getInterestedConsumersForProducerManage()
+    public static void getPointDataForProducerManage()
     {
-
         if (isCurrentUserProducer())
         {
-            Map.Entry<String, Object> locationPsir = ((ProducerUser)UserUtils.currentUserSingleton).getLocationKeys().entrySet().iterator().next();
-            String pointKey = locationPsir.getKey();
+            if ( ((ProducerUser)UserUtils.currentUserSingleton).getLocationKeys() != null )
+            {
+                Map.Entry<String, Object> locationPair = ((ProducerUser) UserUtils.currentUserSingleton).getLocationKeys().entrySet().iterator().next();
+                String pointKey = locationPair.getKey();
 
-            FirebaseUtils.getPointDataForProducerManagement(pointKey);
+                FirebaseUtils.getPointDataForProducerManagement(pointKey);
+            }
+            else
+            {
+                // @TODO ANISH: Producer doesn't have any points placed, show stuff on management UI accordingly
+            }
+        }
+    }
+
+    public static void getProducerDataForConsumerManage()
+    {
+        if (isCurrentUserConsumer())
+        {
+            if ( ((ConsumerUser)UserUtils.currentUserSingleton).getInterestedInProducerList() != null )
+            {
+                Map<String, Object> producerMap = ((ConsumerUser)UserUtils.currentUserSingleton).getInterestedInProducerList();
+                // @TODO ANISH: Producer Map maps producer keys to sub maps that have geofirekeys, producername, reservation amount, and unit maps
+                // See consumerData with interestedInProducerList on firebase for an example
+            }
+            else
+            {
+
+            }
         }
     }
 
