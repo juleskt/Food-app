@@ -5,6 +5,12 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -38,12 +44,42 @@ public class LoginActivity extends AppCompatActivity
     private static final String TAG = "LOGIN_ACTIVITY";
     private static final String USER_DATA_NODE_PATH = "userData";
 
+    private Spinner typeselect;
+    private TextView accounttype, accountname;
+    private EditText nameinput;
+    private Button register;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         googleBtn = (SignInButton) findViewById(R.id.googleBtn);
+        typeselect = (Spinner) findViewById(R.id.typeselect);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.account_types, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeselect.setAdapter(adapter);
+        accounttype = (TextView) findViewById(R.id.accounttype);
+        accountname = (TextView) findViewById(R.id.accountname);
+        nameinput = (EditText) findViewById(R.id.nameinput);
+        register = (Button) findViewById(R.id.register);
+        register.setOnClickListener(view ->
+        {
+            if (nameinput.getText().toString().length() == 0)
+            {
+                nameinput.setError("Please enter the name of your organization");
+                nameinput.requestFocus();
+            } else if (typeselect.getSelectedItem().toString() == null)
+            {
+                Toast.makeText(LoginActivity.this, "Please select an account type", Toast.LENGTH_LONG).show();
+            } else
+            {
+                registerUser();
+            }
+        });
+
 
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -70,12 +106,12 @@ public class LoginActivity extends AppCompatActivity
                 if (firebaseAuth.getCurrentUser() != null)
                 {
                     searchForExistingUser();
-                //    Toast.makeText(LoginActivity.this, "Signing In", Toast.LENGTH_LONG).show();
-                    startActivity(new Intent(LoginActivity.this, MapsActivity.class));
                 }
                 else if (firebaseAuth.getCurrentUser() == null)
                 {
                     UserUtils.currentUserSingleton = null;
+
+
                 }
             }
         };
@@ -83,6 +119,7 @@ public class LoginActivity extends AppCompatActivity
         googleBtn.setOnClickListener(view ->
                 signIn()
         );
+
     }
 
     @Override
@@ -101,36 +138,33 @@ public class LoginActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                for (DataSnapshot data : dataSnapshot.getChildren())
-                {
-                    if (data.getKey().equals(mAuth.getCurrentUser().getUid()))
-                    {
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    if (data.getKey().equals(mAuth.getCurrentUser().getUid())) {
                         User foundUser = data.getValue(User.class);
-                        switch (foundUser.getAccountType())
-                        {
-                            case PRODUCER:
-                            {
+                        switch (foundUser.getAccountType()) {
+                            case PRODUCER: {
                                 UserUtils.currentUserSingleton = new ProducerUser(foundUser);
                                 UserUtils.searchForForUserTypeData(mAuth, UserUtils.currentUserSingleton);
                                 break;
                             }
-                            case CONSUMER:
-                            {
+                            case CONSUMER: {
                                 UserUtils.currentUserSingleton = new ConsumerUser(foundUser);
                                 UserUtils.searchForForUserTypeData(mAuth, UserUtils.currentUserSingleton);
                                 break;
                             }
-                            default:
-                            {
+                            default: {
                                 // @TODO whoops
                                 Toast.makeText(LoginActivity.this, "Default Case: Account Type", Toast.LENGTH_LONG).show();
 
                             }
                         }
+                        Toast.makeText(LoginActivity.this, "Signing In", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(LoginActivity.this, MapsActivity.class));
                         return;
                     }
                 }
-                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+                toggleReg();
+                //startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
             }
 
             @Override
@@ -139,6 +173,16 @@ public class LoginActivity extends AppCompatActivity
 
             }
         });
+    }
+
+    private void toggleReg()
+    {
+        googleBtn.setVisibility(View.GONE);
+        typeselect.setVisibility(View.VISIBLE);
+        accountname.setVisibility(View.VISIBLE);
+        accounttype.setVisibility(View.VISIBLE);
+        nameinput.setVisibility(View.VISIBLE);
+        register.setVisibility(View.VISIBLE);
     }
 
     private void signIn()
@@ -200,5 +244,31 @@ public class LoginActivity extends AppCompatActivity
                         }
                     }
                 });
+    }
+
+    protected void registerUser()
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference(USER_DATA_NODE_PATH);
+        User.AccountType accountType = User.AccountType.valueOf(typeselect.getSelectedItem().toString().toUpperCase());
+        User user = new User(accountType, nameinput.getText().toString());
+        ref.child(mAuth.getCurrentUser().getUid()).setValue(user);
+
+        switch (accountType)
+        {
+            case PRODUCER:
+            {
+                UserUtils.addProducer(mAuth.getCurrentUser().getUid(), nameinput.getText().toString());
+                UserUtils.getCurrentUserDetails(mAuth);
+                break;
+            }
+            case CONSUMER:
+            {
+                UserUtils.addConsumer(mAuth.getCurrentUser().getUid(), nameinput.getText().toString());
+                UserUtils.getCurrentUserDetails(mAuth);
+                break;
+            }
+        }
+        startActivity(new Intent(LoginActivity.this, MapsActivity.class));
     }
 }
