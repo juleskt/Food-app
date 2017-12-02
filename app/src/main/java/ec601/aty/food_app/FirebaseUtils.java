@@ -173,7 +173,7 @@ public class FirebaseUtils
         DatabaseReference ref = database
                 .getReference(POINT_DATA_NODE_PATH);
 
-        ref.child(geofireKey).addValueEventListener(new ValueEventListener()
+        ref.child(geofireKey).addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
@@ -209,7 +209,7 @@ public class FirebaseUtils
         DatabaseReference ref = database
                 .getReference(POINT_DATA_NODE_PATH);
 
-        ref.child(geofireKey).addValueEventListener(new ValueEventListener()
+        ref.child(geofireKey).addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
