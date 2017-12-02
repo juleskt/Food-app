@@ -407,6 +407,10 @@ public class MapsActivity extends FragmentActivity implements
 
     private void addDrawerItems()
     {
+        final int USER_PROFILE_NAVIGATION_ITEM = 0;
+        final int MANAGE_FOOD_NAVIGATION_ITEM = 1;
+        final int LOGOUT_NAVIGATION_ITEM = 2;
+
         String[] osArray = {mAuth.getCurrentUser().getEmail(), "Manage Food", getString(R.string.logout)};
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
         mDrawerList.setAdapter(mAdapter);
@@ -416,12 +420,20 @@ public class MapsActivity extends FragmentActivity implements
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 // Todo: Determine a better way to do this instead of hardcoded method
-                if (position == 2)
+                if (position == LOGOUT_NAVIGATION_ITEM)
                 {
                     UserUtils.safeSignOut(mAuth);
                     Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
                     startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-                } else
+                }
+                else if (position == MANAGE_FOOD_NAVIGATION_ITEM)
+                {
+                    if (UserUtils.isCurrentUserProducer())
+                    {
+                        UserUtils.getInterestedConsumersForProducerManage();
+                    }
+                }
+                else
                 {
                     Toast.makeText(MapsActivity.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
                 }

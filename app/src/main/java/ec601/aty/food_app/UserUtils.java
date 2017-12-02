@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -18,6 +19,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UserUtils
 {
@@ -236,36 +238,15 @@ public class UserUtils
         ((ConsumerUser)currentUserSingleton).setInterestedInProducerList(producerKeyToPointDataMap);
     }
 
-    public static void getInterestedConsumers(FirebaseAuth mAuth)
+    public static void getInterestedConsumersForProducerManage()
     {
+
         if (isCurrentUserProducer())
         {
-            String producerID = mAuth.getCurrentUser().getUid();
+            Map.Entry<String, Object> locationPsir = ((ProducerUser)UserUtils.currentUserSingleton).getLocationKeys().entrySet().iterator().next();
+            String pointKey = locationPsir.getKey();
 
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference ref = database
-                    .getReference(PRODUCER_DATA_NODE_PATH)
-                    .child(mAuth.getCurrentUser().getUid())
-                    .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH);
-
-                ref.addValueEventListener(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-
-                    }
-                });
-        }
-        else
-        {
-            return;
+            FirebaseUtils.getPointDataForProducerManagement(pointKey);
         }
     }
 

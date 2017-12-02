@@ -2,6 +2,7 @@ package ec601.aty.food_app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -179,14 +180,14 @@ public class FirebaseUtils
                 MapPoint pointAssociatedWithProducer = dataSnapshot.getValue(MapPoint.class);
 
                 Map<String, Object> consumerInfoMap = new HashMap<>();
-                consumerInfoMap.put("consumerName", UserUtils.currentUserSingleton.getName());
-                consumerInfoMap.put("reservationAmount", reservationAmount);
+                Map<String, Object> reservationMap = new HashMap<>();
+                reservationMap.put("reservationAmount", reservationAmount);
+                consumerInfoMap.put(UserUtils.currentUserSingleton.getName(), reservationMap);
 
                 pointAssociatedWithProducer.setInterestedConsumers(consumerInfoMap);
 
                 DatabaseReference pointRef = database
-                        .getReference(POINT_DATA_NODE_PATH)
-                        .child(geofireKey);
+                        .getReference(POINT_DATA_NODE_PATH);
 
                 Map<String, Object> pointObject = new HashMap<>();
                 pointObject.put(geofireKey, pointAssociatedWithProducer);
@@ -199,6 +200,30 @@ public class FirebaseUtils
 
             }
         });
+    }
 
+    public static void getPointDataForProducerManagement(String geofireKey)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(POINT_DATA_NODE_PATH);
+
+        ref.child(geofireKey).addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+               MapPoint producerPoint = dataSnapshot.getValue(MapPoint.class);
+               Map<String, Object> interestedConsumers = producerPoint.getInterestedConsumers();
+
+               // @TODO ANISH: POPULATE PRODUCER MANAGE UI WITH INTERESTED CONSUMER STUFF. THE MAP WILL HAVE CONSUMER NAMES TO RESERVATION AMOUNT MAPPINGS
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
     }
 }
