@@ -176,16 +176,31 @@ public class FirebaseUtils
         ref.child(geofireKey).addListenerForSingleValueEvent(new ValueEventListener()
         {
             @Override
+            @SuppressWarnings("unchecked")
             public void onDataChange(DataSnapshot dataSnapshot)
             {
                 MapPoint pointAssociatedWithProducer = dataSnapshot.getValue(MapPoint.class);
+                String currentConsumerName = UserUtils.currentUserSingleton.getName();
 
-                Map<String, Object> consumerInfoMap = new HashMap<>();
-                Map<String, Object> reservationMap = new HashMap<>();
-                reservationMap.put("reservationAmount", reservationAmount);
-                consumerInfoMap.put(UserUtils.currentUserSingleton.getName(), reservationMap);
+                if (pointAssociatedWithProducer != null)
+                {
+                    if (pointAssociatedWithProducer.getInterestedConsumers().get(currentConsumerName) == null)
+                    {
+                        Map<String, Object> consumerInfoMap = new HashMap<>();
+                        Map<String, Object> reservationMap = new HashMap<>();
+                        reservationMap.put("reservationAmount", reservationAmount);
+                        consumerInfoMap.put(currentConsumerName, reservationMap);
 
-                pointAssociatedWithProducer.setInterestedConsumers(consumerInfoMap);
+                        pointAssociatedWithProducer.setInterestedConsumers(consumerInfoMap);
+                    }
+                    else
+                    {
+                        Map<String, Object> consumerMap = pointAssociatedWithProducer.getInterestedConsumers();
+                        Object reservationMap = consumerMap.get(currentConsumerName);
+                        long currentReservationAmount = (long)((HashMap)reservationMap).get("reservationAmount");
+                        ((HashMap)reservationMap).put("reservationAmount", currentReservationAmount + reservationAmount);
+                    }
+                }
 
                 DatabaseReference pointRef = database
                         .getReference(POINT_DATA_NODE_PATH);
