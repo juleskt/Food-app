@@ -13,8 +13,10 @@ public class MapPoint
     private long createdUnixTime;
     private long expiryUnixTime;
     private String posterID;
-    private double quantity;
+    private long quantity;
     private String unit;
+    private String producerName;
+    Map<String, Object> interestedConsumers;
 
     @Exclude
     private Map<String, String> keyProducerPair;
@@ -103,7 +105,7 @@ public class MapPoint
         this.posterID = posterID;
     }
 
-    public double getQuantity()
+    public long getQuantity()
     {
         return quantity;
     }
@@ -113,7 +115,7 @@ public class MapPoint
         return unit;
     }
 
-    public void setQuantity(double inQuantity)
+    public void setQuantity(long inQuantity)
     {
         this.quantity = inQuantity;
     }
@@ -133,5 +135,27 @@ public class MapPoint
     public void setKeyProducerPair(Map<String, String> keyProducerPair)
     {
         this.keyProducerPair = keyProducerPair;
+    }
+
+
+    public String getProducerName()
+    {
+        return producerName;
+    }
+
+    public void setProducerName(String producerName)
+    {
+        this.producerName = producerName;
+    }
+
+
+    public Map<String, Object> getInterestedConsumers()
+    {
+        return interestedConsumers;
+    }
+
+    public void setInterestedConsumers(Map<String, Object> interestedConsumers)
+    {
+        this.interestedConsumers = interestedConsumers;
     }
 }

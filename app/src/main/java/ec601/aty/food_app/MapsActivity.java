@@ -3,7 +3,6 @@ package ec601.aty.food_app;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -23,11 +22,12 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,12 +35,6 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-
-import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Date;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -63,15 +57,19 @@ public class MapsActivity extends FragmentActivity implements
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9001;
     private static final String TAG = "MAPS_ACTIVITY";
 
-    private Button loginButton;
     private TextView userEmail;
     private EditText radiusText;
+
+    //Stuff for the navigation drawer
+    private ListView mDrawerList;
+    private ArrayAdapter<String> mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        mDrawerList = (ListView) findViewById(R.id.navigation_drawer_list);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -101,15 +99,12 @@ public class MapsActivity extends FragmentActivity implements
             }
         };
 
-        loginButton = findViewById(R.id.loginout);
 
         if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-        }
-        else
+        } else
         {
-            loginButton.setText(R.string.logout);
             UserUtils.getCurrentUserDetails(mAuth);
             if (UserUtils.isCurrentUserProducer())
             {
@@ -120,15 +115,15 @@ public class MapsActivity extends FragmentActivity implements
                 radius.setVisibility(View.GONE);
 
                 NotificationManager producerNotificationManager =
-                        (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
                 UserUtils.setInterestedConsumerNotificationForProducer(producerNotificationManager, this, mAuth);
-            }
-            else
+            } else
             {
                 Button publish = findViewById(R.id.sendLocationToFireBase);
                 publish.setVisibility(View.GONE);
             }
+            addDrawerItems();
         }
 
         ActivityCompat.requestPermissions(
@@ -153,15 +148,15 @@ public class MapsActivity extends FragmentActivity implements
                 PackageManager.PERMISSION_GRANTED)
         {
             LocationServices.getFusedLocationProviderClient(this).getLastLocation()
-                .addOnSuccessListener(this, (location) ->
-                {
-                    if (location != null)
+                    .addOnSuccessListener(this, (location) ->
                     {
-                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-                        mMap.animateCamera(cameraUpdate);
-                    }
-                });
+                        if (location != null)
+                        {
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                            mMap.animateCamera(cameraUpdate);
+                        }
+                    });
         }
     }
 
@@ -192,43 +187,21 @@ public class MapsActivity extends FragmentActivity implements
     {
         if (UserUtils.isCurrentUserProducer())
         {
-            if ( !((ProducerUser)UserUtils.currentUserSingleton).checkIfProducerIsAtLimit() )
+            if (!((ProducerUser) UserUtils.currentUserSingleton).checkIfProducerIsAtLimit())
             {
                 currentMapPoint = new MapPoint(point.latitude, point.longitude);
                 mMap.addMarker(new MarkerOptions()
-                    .position(point)
-                    .title("You are here")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-            }
-            else
+                        .position(point)
+                        .title("You are here")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            } else
             {
                 Toast.makeText(
-                    MapsActivity.this,
-                    "You are currently at your point limit",
-                    Toast.LENGTH_SHORT)
-                .show();
+                        MapsActivity.this,
+                        "You are currently at your point limit",
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
-        }
-    }
-
-    public void onMapLoginClick(View view)
-    {
-        if (mAuth.getCurrentUser() == null)
-        {
-            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-            if (mAuth.getCurrentUser() != null)
-            {
-                loginButton.setText(R.string.logout);
-            }
-        }
-        else
-        {
-            UserUtils.safeSignOut(mAuth);
-            Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
-            userEmail = findViewById(R.id.userEmail);
-            userEmail.setText(R.string.none);
-            loginButton.setText(R.string.login);
-            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
         }
     }
 
@@ -361,10 +334,10 @@ public class MapsActivity extends FragmentActivity implements
     //Connecting to actual client
     protected synchronized void buildGoogleApiClient()
     {
-        Toast.makeText(
-                getApplicationContext(),
-                "Connecting to Google API...",
-                Toast.LENGTH_SHORT).show();
+//        Toast.makeText(
+//                getApplicationContext(),
+//                "Connecting to Google API...",
+//                Toast.LENGTH_SHORT).show();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -430,5 +403,41 @@ public class MapsActivity extends FragmentActivity implements
     {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    private void addDrawerItems()
+    {
+        final int USER_PROFILE_NAVIGATION_ITEM = 0;
+        final int MANAGE_FOOD_NAVIGATION_ITEM = 1;
+        final int LOGOUT_NAVIGATION_ITEM = 2;
+
+        String[] osArray = {mAuth.getCurrentUser().getEmail(), "Manage Food", getString(R.string.logout)};
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
+        mDrawerList.setAdapter(mAdapter);
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                // Todo: Determine a better way to do this instead of hardcoded method
+                if (position == LOGOUT_NAVIGATION_ITEM)
+                {
+                    UserUtils.safeSignOut(mAuth);
+                    Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+                }
+                else if (position == MANAGE_FOOD_NAVIGATION_ITEM)
+                {
+                    if (UserUtils.isCurrentUserProducer())
+                    {
+                        UserUtils.getInterestedConsumersForProducerManage();
+                    }
+                }
+                else
+                {
+                    Toast.makeText(MapsActivity.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

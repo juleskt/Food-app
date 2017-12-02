@@ -111,8 +111,13 @@ public class MapUtils
                 {
                     geoFireKeyToMapPointPair.forEach((geoFireKey, mapPoint) ->
                     {
-                        FirebaseUtils.consumeDialogPublish(maps_activity, consumer_dialog, geoFireKey,  mapPoint);
-                        UserUtils.addConsumerAsInterestedInProducerFromPoint(geoFireKey, mapPoint.getPosterID(), mAuth);
+                        long reservationAmount = FirebaseUtils.consumeDialogPublish(maps_activity, consumer_dialog, geoFireKey,  mapPoint);
+
+                        if (reservationAmount > 0)
+                        {
+                            UserUtils.registerProducerAsInterestForConsumerFromPoint(geoFireKey, mapPoint, mAuth, reservationAmount);
+                            FirebaseUtils.registerInterestedConsumerUnderPoint(geoFireKey, mAuth, reservationAmount);
+                        }
                     });
                 }
             });

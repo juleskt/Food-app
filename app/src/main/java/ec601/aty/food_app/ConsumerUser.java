@@ -1,12 +1,10 @@
 package ec601.aty.food_app;
 
-import com.google.firebase.database.Exclude;
-
 import java.util.Map;
 
 public class ConsumerUser extends User
 {
-    Map<String, Object> interestedPointKeys;
+    Map<String, Object> interestedInProducerList;
 
     public ConsumerUser(AccountType accountType, String name)
     {
@@ -28,13 +26,13 @@ public class ConsumerUser extends User
     {
     }
 
-    public Map<String, Object> getInterestedPointKeys()
+    public Map<String, Object> getInterestedInProducerList()
     {
-        return interestedPointKeys;
+        return interestedInProducerList;
     }
 
-    public void setInterestedPointKeys(Map<String, Object> interestedPointKeys)
+    public void setInterestedInProducerList(Map<String, Object> interestedInProducerList)
     {
-        this.interestedPointKeys = interestedPointKeys;
+        this.interestedInProducerList = interestedInProducerList;
     }
 }

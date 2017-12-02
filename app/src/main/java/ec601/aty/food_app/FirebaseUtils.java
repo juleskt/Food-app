@@ -2,6 +2,7 @@ package ec601.aty.food_app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,16 +77,15 @@ public class FirebaseUtils
         return geofireKeyToPointMap;
     }
 
-    public static void consumeDialogPublish(Context context, Dialog dialog, String geofireKey, MapPoint mapPoint)
+    public static long consumeDialogPublish(Context context, Dialog dialog, String geofireKey, MapPoint mapPoint)
     {
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String quantity_str = (((TextView) dialog.findViewById(R.id.consume_quantity_box)).getText().toString());
 
-        Double quantity;
+        long quantity;
         try
         {
-            quantity = Double.parseDouble(quantity_str);
-            if (quantity <= 0.0 || quantity > mapPoint.getQuantity())
+            quantity = Long.parseLong(quantity_str);
+            if (quantity <= 0 || quantity > mapPoint.getQuantity())
             {
                throw new Exception();
             }
@@ -96,11 +96,13 @@ public class FirebaseUtils
         catch (Exception e)
         {
             Toast.makeText(context, "Please enter a valid input", Toast.LENGTH_LONG).show();
-            return;
+            return 0;
         }
 
         Toast.makeText(context, "" + quantity_str, Toast.LENGTH_LONG).show();
         dialog.dismiss();
+
+        return quantity;
     }
 
     public static void produceDialogPublish(Context context, Dialog dialog, MapPoint currentMapPoint)
@@ -121,15 +123,15 @@ public class FirebaseUtils
         }
 
         int hours;
-        Double quantity;
+        long quantity;
         try
         {
             hours = Integer.parseInt(validity);
-            quantity = Double.parseDouble(quantity_str);
+            quantity = Integer.parseInt(quantity_str);
         }
         catch (Exception e)
         {
-            Toast.makeText(context, "Please enter valid inputs", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Please enter valid integer inputs", Toast.LENGTH_LONG).show();
             return;
         }
         String unit = (((Spinner) dialog.findViewById(R.id.unit_selection)).getSelectedItem().toString());
@@ -140,6 +142,7 @@ public class FirebaseUtils
         currentMapPoint.setPosterID(mAuth.getCurrentUser().getUid());
         currentMapPoint.setUnit(unit);
         currentMapPoint.setQuantity(quantity);
+        currentMapPoint.setProducerName(UserUtils.currentUserSingleton.getName());
 
         String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
         UserUtils.addPointForCurrentProducer(refKey, mAuth);
@@ -161,5 +164,66 @@ public class FirebaseUtils
         Map<String, Object> updatedMapPoint = new HashMap<>();
         updatedMapPoint.put(geofireKey, pointToModify);
         ref.updateChildren(updatedMapPoint);
+    }
+
+    public static void registerInterestedConsumerUnderPoint(String geofireKey, FirebaseAuth mAuth, long reservationAmount)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(POINT_DATA_NODE_PATH);
+
+        ref.child(geofireKey).addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                MapPoint pointAssociatedWithProducer = dataSnapshot.getValue(MapPoint.class);
+
+                Map<String, Object> consumerInfoMap = new HashMap<>();
+                Map<String, Object> reservationMap = new HashMap<>();
+                reservationMap.put("reservationAmount", reservationAmount);
+                consumerInfoMap.put(UserUtils.currentUserSingleton.getName(), reservationMap);
+
+                pointAssociatedWithProducer.setInterestedConsumers(consumerInfoMap);
+
+                DatabaseReference pointRef = database
+                        .getReference(POINT_DATA_NODE_PATH);
+
+                Map<String, Object> pointObject = new HashMap<>();
+                pointObject.put(geofireKey, pointAssociatedWithProducer);
+                pointRef.updateChildren(pointObject);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+    }
+
+    public static void getPointDataForProducerManagement(String geofireKey)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(POINT_DATA_NODE_PATH);
+
+        ref.child(geofireKey).addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+               MapPoint producerPoint = dataSnapshot.getValue(MapPoint.class);
+               Map<String, Object> interestedConsumers = producerPoint.getInterestedConsumers();
+
+               // @TODO ANISH: POPULATE PRODUCER MANAGE UI WITH INTERESTED CONSUMER STUFF. THE MAP WILL HAVE CONSUMER NAMES TO RESERVATION AMOUNT MAPPINGS
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
     }
 }
