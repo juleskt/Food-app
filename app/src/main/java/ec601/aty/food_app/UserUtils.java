@@ -424,21 +424,33 @@ public class UserUtils
     * */
     public static void deletePointDataFromManagement(FirebaseAuth mAuth)
     {
-        String geofireKey = ((ProducerUser)currentUserSingleton).getLocationKeys().entrySet().iterator().next().getKey();
+        String geofireKey = ((ProducerUser)currentUserSingleton)
+                .getLocationKeys()
+                .entrySet()
+                .iterator()
+                .next()
+                .getKey();
         GeoFireUtils.deleteGeofirePoint(geofireKey);
+
         ((ProducerUser)currentUserSingleton).getInterestedConsumers().forEach( (consumerKey, geoFireKey) ->
         {
-            removeProducerFromConsumer(consumerKey, mAuth);
+            removeProducerFromConsumer(consumerKey, mAuth.getCurrentUser().getUid());
         });
-        FirebaseUtils.deletePointData();
-        deleteInterestedConsumerAndLocationKeys(mAuth);
+
+        String pointDataKey = ((ProducerUser)UserUtils.currentUserSingleton)
+                .getLocationKeys()
+                .entrySet()
+                .iterator()
+                .next()
+                .getKey();
+        FirebaseUtils.deletePointData(pointDataKey);
+
+        deleteInterestedConsumerAndLocationKeys(mAuth.getCurrentUser().getUid());
         UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton);
     }
 
-    public static void removeProducerFromConsumer(String consumerKey, FirebaseAuth mAuth)
+    public static void removeProducerFromConsumer(String consumerKey, String currentProducerKey)
     {
-        String currentProducerKey = mAuth.getCurrentUser().getUid();
-
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database
                 .getReference(CONSUMER_DATA_NODE_PATH)
@@ -462,9 +474,8 @@ public class UserUtils
         });
     }
 
-    public static void deleteInterestedConsumerAndLocationKeys(FirebaseAuth mAuth)
+    public static void deleteInterestedConsumerAndLocationKeys(String currentProducerKey)
     {
-        String currentProducerKey = mAuth.getCurrentUser().getUid();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database
                 .getReference(PRODUCER_DATA_NODE_PATH)

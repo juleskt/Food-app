@@ -263,15 +263,8 @@ public class FirebaseUtils
         });
     }
 
-    public static void deletePointData()
+    public static void deletePointData(String pointDataKey)
     {
-        String pointDataKey = ((ProducerUser)UserUtils.currentUserSingleton)
-                .getLocationKeys()
-                .entrySet()
-                .iterator()
-                .next()
-                .getKey();
-
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database
                 .getReference(POINT_DATA_NODE_PATH)
