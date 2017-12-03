@@ -414,4 +414,81 @@ public class UserUtils
             }
         });
     }
+
+    /*
+    * ONLY USE WHEN PRODUCER IS DELETING POINT
+    * First, delete geofire data
+    * Delete in consumer
+    * Delete point data
+    * Update producer data and get rid of interestedConsumers and locationKeys
+    * */
+    public static void deletePointDataFromManagement(FirebaseAuth mAuth)
+    {
+        String geofireKey = ((ProducerUser)currentUserSingleton).getLocationKeys().entrySet().iterator().next().getKey();
+        GeoFireUtils.deleteGeofirePoint(geofireKey);
+        ((ProducerUser)currentUserSingleton).getInterestedConsumers().forEach( (consumerKey, geoFireKey) ->
+        {
+            removeProducerFromConsumer(consumerKey, mAuth);
+        });
+        FirebaseUtils.deletePointData();
+        deleteInterestedConsumerAndLocationKeys(mAuth);
+        UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton);
+    }
+
+    public static void removeProducerFromConsumer(String consumerKey, FirebaseAuth mAuth)
+    {
+        String currentProducerKey = mAuth.getCurrentUser().getUid();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(CONSUMER_DATA_NODE_PATH)
+                .child(consumerKey)
+                .child(CONSUMER_INTERESTED_IN_PRODUCERS_CHILD_PATH)
+                .child(currentProducerKey);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                dataSnapshot.getChildren().forEach(childData -> childData.getRef().removeValue());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+    }
+
+    public static void deleteInterestedConsumerAndLocationKeys(FirebaseAuth mAuth)
+    {
+        String currentProducerKey = mAuth.getCurrentUser().getUid();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(PRODUCER_DATA_NODE_PATH)
+                .child(currentProducerKey);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                dataSnapshot.getChildren().forEach(childData -> {
+                    if (childData.getKey().equals(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH) ||
+                            childData.getKey().equals(PRODUCER_LOCATION_KEY_CHILD_PATH))
+                    {
+                        childData.getRef().removeValue();
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+    }
 }

@@ -10,9 +10,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,5 +96,26 @@ public class GeoFireUtils
     private static void displayGeoQueryResultsOnMap(List<String> geofireKeysList)
     {
         FirebaseUtils.populateMapWithMapPointsFromGeofireKeys(geofireKeysList);
+    }
+
+    public static void deleteGeofirePoint(String geofireKey)
+    {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(GEOFIRE_NODE_PATH);
+        Query geofireQuery = ref.child(geofireKey);
+
+        geofireQuery.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                dataSnapshot.getChildren().forEach(childData -> childData.getRef().removeValue());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
     }
 }

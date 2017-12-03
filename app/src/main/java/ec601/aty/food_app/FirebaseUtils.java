@@ -2,8 +2,6 @@ package ec601.aty.food_app;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -179,26 +177,40 @@ public class FirebaseUtils
             @SuppressWarnings("unchecked")
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                MapPoint pointAssociatedWithProducer = dataSnapshot.getValue(MapPoint.class);
+                MapPoint pointAssociatedWithProducerFromDB = dataSnapshot.getValue(MapPoint.class);
                 String currentConsumerName = UserUtils.currentUserSingleton.getName();
 
-                if (pointAssociatedWithProducer != null)
+                if (pointAssociatedWithProducerFromDB != null)
                 {
-                    if (pointAssociatedWithProducer.getInterestedConsumers().get(currentConsumerName) == null)
+                    // Not first consumer
+                    if (pointAssociatedWithProducerFromDB.getInterestedConsumers() != null)
+                    {
+                        // Consumer is not present
+                        if (pointAssociatedWithProducerFromDB.getInterestedConsumers().get(currentConsumerName) == null)
+                        {
+                            Map<String, Object> consumerInfoMap = pointAssociatedWithProducerFromDB.getInterestedConsumers();
+                            Map<String, Object> reservationMap = new HashMap<>();
+                            reservationMap.put("reservationAmount", reservationAmount);
+                            consumerInfoMap.put(currentConsumerName, reservationMap);
+                        }
+                        // If consumer is already present
+                        else
+                        {
+                            Map<String, Object> consumerMap = pointAssociatedWithProducerFromDB.getInterestedConsumers();
+                            Object reservationMap = consumerMap.get(currentConsumerName);
+                            long currentReservationAmount = (long)((HashMap)reservationMap).get("reservationAmount");
+                            ((HashMap)reservationMap).put("reservationAmount", currentReservationAmount + reservationAmount);
+                        }
+                    }
+                    // First consumer
+                    else
                     {
                         Map<String, Object> consumerInfoMap = new HashMap<>();
                         Map<String, Object> reservationMap = new HashMap<>();
                         reservationMap.put("reservationAmount", reservationAmount);
                         consumerInfoMap.put(currentConsumerName, reservationMap);
 
-                        pointAssociatedWithProducer.setInterestedConsumers(consumerInfoMap);
-                    }
-                    else
-                    {
-                        Map<String, Object> consumerMap = pointAssociatedWithProducer.getInterestedConsumers();
-                        Object reservationMap = consumerMap.get(currentConsumerName);
-                        long currentReservationAmount = (long)((HashMap)reservationMap).get("reservationAmount");
-                        ((HashMap)reservationMap).put("reservationAmount", currentReservationAmount + reservationAmount);
+                        pointAssociatedWithProducerFromDB.setInterestedConsumers(consumerInfoMap);
                     }
                 }
 
@@ -206,7 +218,7 @@ public class FirebaseUtils
                         .getReference(POINT_DATA_NODE_PATH);
 
                 Map<String, Object> pointObject = new HashMap<>();
-                pointObject.put(geofireKey, pointAssociatedWithProducer);
+                pointObject.put(geofireKey, pointAssociatedWithProducerFromDB);
                 pointRef.updateChildren(pointObject);
             }
 
@@ -241,6 +253,36 @@ public class FirebaseUtils
                 {
                     // No interested consumers :(
                 }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+    }
+
+    public static void deletePointData()
+    {
+        String pointDataKey = ((ProducerUser)UserUtils.currentUserSingleton)
+                .getLocationKeys()
+                .entrySet()
+                .iterator()
+                .next()
+                .getKey();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(POINT_DATA_NODE_PATH)
+                .child(pointDataKey);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                dataSnapshot.getChildren().forEach(pointDataChild -> pointDataChild.getRef().removeValue());
             }
 
             @Override

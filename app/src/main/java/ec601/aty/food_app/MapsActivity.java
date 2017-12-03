@@ -441,6 +441,7 @@ public class MapsActivity extends FragmentActivity implements
                     if (UserUtils.isCurrentUserProducer())
                     {
                         UserUtils.getPointDataForProducerManage();
+                        UserUtils.deletePointDataFromManagement(mAuth);
 
                     }
                     else if (UserUtils.isCurrentUserConsumer())
