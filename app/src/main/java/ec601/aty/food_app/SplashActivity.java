@@ -74,7 +74,6 @@ public class SplashActivity extends AppCompatActivity {
 
                                 }
                             }
-                            Toast.makeText(SplashActivity.this, "Signing In", Toast.LENGTH_LONG).show();
                             startActivity(new Intent(SplashActivity.this, MapsActivity.class));
                         }
                     }

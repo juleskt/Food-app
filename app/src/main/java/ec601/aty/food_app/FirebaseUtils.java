@@ -70,7 +70,7 @@ public class FirebaseUtils
         MapUtils.addMarkerToMap(
             new MarkerOptions()
                     .position(mapPoint.getCoordinates())
-                    .title("Expires at " + DateAndTimeUtils.getLocalFormattedDateFromUnixTime(mapPoint.getExpiryUnixTime()))
+                    .title(mapPoint.getProducerName())
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)),
             geofireKeyToPointMap
         );

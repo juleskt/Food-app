@@ -158,7 +158,6 @@ public class LoginActivity extends AppCompatActivity
 
                             }
                         }
-                        Toast.makeText(LoginActivity.this, "Signing In", Toast.LENGTH_LONG).show();
                         startActivity(new Intent(LoginActivity.this, MapsActivity.class));
                         return;
                     }

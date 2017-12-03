@@ -338,11 +338,6 @@ public class MapsActivity extends FragmentActivity implements
     //Connecting to actual client
     protected synchronized void buildGoogleApiClient()
     {
-//        Toast.makeText(
-//                getApplicationContext(),
-//                "Connecting to Google API...",
-//                Toast.LENGTH_SHORT).show();
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -433,7 +428,6 @@ public class MapsActivity extends FragmentActivity implements
                 if (position == LOGOUT_NAVIGATION_ITEM)
                 {
                     UserUtils.safeSignOut(mAuth);
-                    Toast.makeText(MapsActivity.this, "Signing Out", Toast.LENGTH_LONG).show();
                     startActivity(new Intent(MapsActivity.this, LoginActivity.class));
                 }
                 else if (position == MANAGE_FOOD_NAVIGATION_ITEM)

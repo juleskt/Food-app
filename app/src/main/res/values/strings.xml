@@ -23,6 +23,7 @@
         <item>Bags</item>
     </string-array>
     <string name="how_much_do_you_want_to_pickup">How much would you like to pick up?</string>
-    <string name="the_restaurant_has">The restaraunt has</string>
+    <string name="has"> has</string>
     <string name="reserve_food">Reserve Food</string>
+    <string name="of_food"> of food.</string>
 </resources>
