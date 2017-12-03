@@ -424,29 +424,35 @@ public class UserUtils
     * */
     public static void deletePointDataFromManagement(FirebaseAuth mAuth)
     {
-        String geofireKey = ((ProducerUser)currentUserSingleton)
-                .getLocationKeys()
-                .entrySet()
-                .iterator()
-                .next()
-                .getKey();
-        GeoFireUtils.deleteGeofirePoint(geofireKey);
-
-        ((ProducerUser)currentUserSingleton).getInterestedConsumers().forEach( (consumerKey, geoFireKey) ->
+        if ( ((ProducerUser)currentUserSingleton).getLocationKeys() != null)
         {
-            removeProducerFromConsumer(consumerKey, mAuth.getCurrentUser().getUid());
-        });
+            String geofireKey = ((ProducerUser) currentUserSingleton)
+                    .getLocationKeys()
+                    .entrySet()
+                    .iterator()
+                    .next()
+                    .getKey();
+            GeoFireUtils.deleteGeofirePoint(geofireKey);
 
-        String pointDataKey = ((ProducerUser)UserUtils.currentUserSingleton)
-                .getLocationKeys()
-                .entrySet()
-                .iterator()
-                .next()
-                .getKey();
-        FirebaseUtils.deletePointData(pointDataKey);
+            if ( ((ProducerUser)currentUserSingleton).getInterestedConsumers() != null)
+            {
+                ((ProducerUser) currentUserSingleton).getInterestedConsumers().forEach((consumerKey, geoFireKey) ->
+                {
+                    removeProducerFromConsumer(consumerKey, mAuth.getCurrentUser().getUid());
+                });
+            }
 
-        deleteInterestedConsumerAndLocationKeys(mAuth.getCurrentUser().getUid());
-        UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton);
+            deleteInterestedConsumerAndLocationKeys(mAuth.getCurrentUser().getUid());
+
+            String pointDataKey = ((ProducerUser) UserUtils.currentUserSingleton)
+                    .getLocationKeys()
+                    .entrySet()
+                    .iterator()
+                    .next()
+                    .getKey();
+            FirebaseUtils.deletePointData(pointDataKey);
+            UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton);
+        }
     }
 
     public static void findInterestedConsumersFromProducerKeyAndDelete(String producerKey)

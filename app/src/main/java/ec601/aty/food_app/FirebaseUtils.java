@@ -156,11 +156,6 @@ public class FirebaseUtils
         FirebaseUtils.pushPointData(refKey, currentMapPoint);
 
         dialog.dismiss();
-
-        Toast.makeText(
-                context,
-                "Published point!",
-                Toast.LENGTH_SHORT).show();
     }
 
     public static void updateMapPoint(String geofireKey, MapPoint pointToModify) {

@@ -22,8 +22,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.support.v4.content.ContextCompat;
-import android.view.DragEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -191,7 +189,7 @@ public class MapsActivity extends FragmentActivity implements
     {
         if (UserUtils.isCurrentUserProducer())
         {
-            if (!((ProducerUser) UserUtils.currentUserSingleton).checkIfProducerIsAtLimit())
+            if (!((ProducerUser) UserUtils.currentUserSingleton).isProducerAtPointLimit())
             {
                 currentMapPoint = new MapPoint(point.latitude, point.longitude);
                 mMap.addMarker(new MarkerOptions()
@@ -229,27 +227,30 @@ public class MapsActivity extends FragmentActivity implements
                 return;
             }
 
-            final Dialog dialog = new Dialog(MapsActivity.this);
-            dialog.setContentView(R.layout.publish_dialog);
-            dialog.setTitle("Food publish details");
-
-            Spinner unit_spinner = (Spinner) dialog.findViewById(R.id.unit_selection);
-            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                    R.array.unit_types, android.R.layout.simple_spinner_item);
-
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            unit_spinner.setAdapter(adapter);
-            Button dialogButton = (Button) dialog.findViewById(R.id.publish_dialog_button);
-            // if button is clicked, close the custom dialog
-            dialogButton.setOnClickListener(new View.OnClickListener()
+            if ( ((ProducerUser) UserUtils.currentUserSingleton).isProducerAtPointLimit())
             {
-                @Override
-                public void onClick(View v)
+                final Dialog dialog = new Dialog(MapsActivity.this);
+                dialog.setContentView(R.layout.publish_dialog);
+                dialog.setTitle("Food publish details");
+
+                Spinner unit_spinner = (Spinner) dialog.findViewById(R.id.unit_selection);
+                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                        R.array.unit_types, android.R.layout.simple_spinner_item);
+
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                unit_spinner.setAdapter(adapter);
+                Button dialogButton = (Button) dialog.findViewById(R.id.publish_dialog_button);
+                // if button is clicked, close the custom dialog
+                dialogButton.setOnClickListener(new View.OnClickListener()
                 {
-                    FirebaseUtils.produceDialogPublish(MapsActivity.this, dialog, currentMapPoint);
-                }
-            });
-            dialog.show();
+                    @Override
+                    public void onClick(View v)
+                    {
+                        FirebaseUtils.produceDialogPublish(MapsActivity.this, dialog, currentMapPoint);
+                    }
+                });
+                dialog.show();
+            }
         }
     }
 
@@ -435,6 +436,8 @@ public class MapsActivity extends FragmentActivity implements
                     if (UserUtils.isCurrentUserProducer())
                     {
                         UserUtils.getPointDataForProducerManage();
+
+                        // Testing delete functionality
                         UserUtils.deletePointDataFromManagement(mAuth);
 
                     }

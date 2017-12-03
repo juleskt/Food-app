@@ -41,7 +41,7 @@ public class ProducerUser extends User
     }
 
     @Exclude
-    public boolean checkIfProducerIsAtLimit()
+    public boolean isProducerAtPointLimit()
     {
         if (locationKeys != null)
         {
@@ -54,7 +54,7 @@ public class ProducerUser extends User
     @Exclude
     public boolean addLocation(String geofireKey, MapPoint point)
     {
-        if (!checkIfProducerIsAtLimit())
+        if (!isProducerAtPointLimit())
         {
             locationKeys.put(geofireKey, point);
             return true;
