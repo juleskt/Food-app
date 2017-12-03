@@ -104,7 +104,7 @@ public class MapsActivity extends FragmentActivity implements
 
         if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
-            startActivity(new Intent(MapsActivity.this, LoginActivity.class));
+            startActivity(new Intent(MapsActivity.this, SplashActivity.class));
         }
         else
         {
