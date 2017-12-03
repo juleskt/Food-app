@@ -449,6 +449,32 @@ public class UserUtils
         UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton);
     }
 
+    public static void findInterestedConsumersFromProducerKeyAndDelete(String producerKey)
+    {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database
+                .getReference(PRODUCER_DATA_NODE_PATH)
+                .child(producerKey)
+                .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                dataSnapshot.getChildren().forEach(childData -> {
+                    removeProducerFromConsumer(childData.getKey(), producerKey);
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
+
+            }
+        });
+    }
+
     public static void removeProducerFromConsumer(String consumerKey, String currentProducerKey)
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();

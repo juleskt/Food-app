@@ -43,10 +43,18 @@ public class FirebaseUtils
                     {
                         MapPoint pointToAdd = dataSnapshot.getValue(MapPoint.class);
 
-                        displayMapPointOnMap(
-                                pointToAdd,
-                                createGeoFireKeyToProducerKeyPair(pointToAdd, key)
-                        );
+                        // Delete if expired
+                        if ( DateAndTimeUtils.checkIfUnixTimeIsExpired(pointToAdd.getExpiryUnixTime()) )
+                        {
+                            autoDeletePointData(key, pointToAdd.getPosterID());
+                        }
+                        else
+                        {
+                            displayMapPointOnMap(
+                                    pointToAdd,
+                                    createGeoFireKeyToProducerKeyPair(pointToAdd, key)
+                            );
+                        }
                     }
 
                     @Override
@@ -284,5 +292,13 @@ public class FirebaseUtils
 
             }
         });
+    }
+
+    public static void autoDeletePointData(String geofireKey, String producerKey)
+    {
+        GeoFireUtils.deleteGeofirePoint(geofireKey);
+        UserUtils.findInterestedConsumersFromProducerKeyAndDelete(producerKey);
+        FirebaseUtils.deletePointData(geofireKey);
+        UserUtils.deleteInterestedConsumerAndLocationKeys(producerKey);
     }
 }
