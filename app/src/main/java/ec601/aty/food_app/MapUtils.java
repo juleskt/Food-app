@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
@@ -117,5 +118,41 @@ public class MapUtils
             });
             consumer_dialog.show();
         });
+    }
+    public static void createPublishManageDialog(Context maps_activity, FirebaseAuth mAuth)
+    {
+        final Dialog dialog = new Dialog(maps_activity);
+        dialog.setContentView(R.layout.producer_manage);
+        dialog.setTitle("Point Management");
+
+        UserUtils.getPointDataForProducerManage(dialog, maps_activity);
+
+
+        // This button is used to close the dialog
+        Button dialogButton = dialog.findViewById(R.id.exit_point_manage);
+        dialogButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        // This button is used to remove a point
+        dialogButton = dialog.findViewById(R.id.remove_point);
+        dialogButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                UserUtils.deletePointDataFromManagement(mAuth);
+                dialog.dismiss();
+            }
+        });
+
+
+        dialog.show();
+
     }
 }

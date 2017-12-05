@@ -1,6 +1,7 @@
 package ec601.aty.food_app;
 
 import android.annotation.TargetApi;
+import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,6 +9,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -96,8 +98,7 @@ public class UserUtils
                     // @TODO: No network connectivity
                 }
             });
-        }
-        else if (isConsumer(userToFind))
+        } else if (isConsumer(userToFind))
         {
             DatabaseReference ref = database.getReference(CONSUMER_DATA_NODE_PATH);
             ref.child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener()
@@ -161,7 +162,7 @@ public class UserUtils
 
     public static void safeSignOut(FirebaseAuth mAuth)
     {
-        if ( isCurrentUserProducer() )
+        if (isCurrentUserProducer())
         {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference ref = database.getReference(PRODUCER_DATA_NODE_PATH);
@@ -189,7 +190,7 @@ public class UserUtils
 
     public static Map<String, Object> getPointsForCurrentProducer()
     {
-        return ((ProducerUser)currentUserSingleton).getLocationKeys();
+        return ((ProducerUser) currentUserSingleton).getLocationKeys();
     }
 
     public static void registerProducerAsInterestForConsumerFromPoint(String geofireKey, MapPoint point, FirebaseAuth mAuth, long reservationAmount)
@@ -212,13 +213,12 @@ public class UserUtils
                 .child(CONSUMER_INTERESTED_IN_PRODUCERS_CHILD_PATH);
 
         Map<String, Object> producerKeyToPointDataMap;
-        if ( ((ConsumerUser)currentUserSingleton).getInterestedInProducerList() == null )
+        if (((ConsumerUser) currentUserSingleton).getInterestedInProducerList() == null)
         {
             producerKeyToPointDataMap = new HashMap<>();
-        }
-        else
+        } else
         {
-            producerKeyToPointDataMap = ((ConsumerUser)currentUserSingleton).getInterestedInProducerList();
+            producerKeyToPointDataMap = ((ConsumerUser) currentUserSingleton).getInterestedInProducerList();
         }
 
         Map.Entry<String, Object> existingEntryForProducer = producerKeyToPointDataMap.entrySet().stream()
@@ -230,11 +230,10 @@ public class UserUtils
         {
             if (existingEntryForProducer.getValue() instanceof HashMap)
             {
-                long oldReservationValue = (long)((HashMap) existingEntryForProducer.getValue()).get("reservationAmount");
-                ((HashMap)existingEntryForProducer.getValue()).put("reservationAmount", oldReservationValue + reservationAmount);
+                long oldReservationValue = (long) ((HashMap) existingEntryForProducer.getValue()).get("reservationAmount");
+                ((HashMap) existingEntryForProducer.getValue()).put("reservationAmount", oldReservationValue + reservationAmount);
             }
-        }
-        else
+        } else
         {
             Map<String, Object> keyMap = new HashMap<>();
             keyMap.put("producerName", point.getProducerName());
@@ -245,23 +244,23 @@ public class UserUtils
         }
 
         newRef.updateChildren(producerKeyToPointDataMap);
-        ((ConsumerUser)currentUserSingleton).setInterestedInProducerList(producerKeyToPointDataMap);
+        ((ConsumerUser) currentUserSingleton).setInterestedInProducerList(producerKeyToPointDataMap);
     }
 
-    public static void getPointDataForProducerManage()
+    public static void getPointDataForProducerManage(Dialog dialog, Context context)
     {
         if (isCurrentUserProducer())
         {
-            if ( ((ProducerUser)UserUtils.currentUserSingleton).getLocationKeys() != null )
+            if (((ProducerUser) UserUtils.currentUserSingleton).getLocationKeys() != null)
             {
                 Map.Entry<String, Object> locationPair = ((ProducerUser) UserUtils.currentUserSingleton).getLocationKeys().entrySet().iterator().next();
                 String pointKey = locationPair.getKey();
 
-                FirebaseUtils.getPointDataForProducerManagement(pointKey);
-            }
-            else
+                FirebaseUtils.getPointDataForProducerManagement(pointKey, dialog, context);
+            } else
             {
-                // @TODO ANISH: Producer doesn't have any points placed, show stuff on management UI accordingly
+                Toast.makeText(context, "You don't have any points placed!", Toast.LENGTH_LONG).show();
+
             }
         }
     }
@@ -270,13 +269,12 @@ public class UserUtils
     {
         if (isCurrentUserConsumer())
         {
-            if ( ((ConsumerUser)UserUtils.currentUserSingleton).getInterestedInProducerList() != null )
+            if (((ConsumerUser) UserUtils.currentUserSingleton).getInterestedInProducerList() != null)
             {
-                Map<String, Object> producerMap = ((ConsumerUser)UserUtils.currentUserSingleton).getInterestedInProducerList();
+                Map<String, Object> producerMap = ((ConsumerUser) UserUtils.currentUserSingleton).getInterestedInProducerList();
                 // @TODO ANISH: Producer Map maps producer keys to sub maps that have geofirekeys, producername, reservation amount, and unit maps
                 // See consumerData with interestedInProducerList on firebase for an example
-            }
-            else
+            } else
             {
 
             }
@@ -307,8 +305,7 @@ public class UserUtils
                             .setDefaults(Notification.DEFAULT_ALL)
                             .setPriority(Notification.PRIORITY_HIGH)
                             .setAutoCancel(true);
-                }
-                else
+                } else
                 {
                     mChannel = new NotificationChannel(channelID, "Food Reservation", importance);
                     mChannel.enableVibration(true);
@@ -323,7 +320,6 @@ public class UserUtils
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s)
             {
-
             }
 
             @Override
@@ -346,9 +342,9 @@ public class UserUtils
         };
 
         ref
-            .child(mAuth.getCurrentUser().getUid())
-            .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH)
-            .addChildEventListener(notificationChildEventListener);
+                .child(mAuth.getCurrentUser().getUid())
+                .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH)
+                .addChildEventListener(notificationChildEventListener);
 
     }
 
@@ -362,9 +358,9 @@ public class UserUtils
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-               String consumerName = dataSnapshot.getValue(ConsumerUser.class).getName();
-               notificationBuilder.setContentText(consumerName + " has reserved food.");
-               notificationManager.notify(0, notificationBuilder.build());
+                String consumerName = dataSnapshot.getValue(ConsumerUser.class).getName();
+                notificationBuilder.setContentText(consumerName + " has reserved food.");
+                notificationManager.notify(0, notificationBuilder.build());
             }
 
             @Override
@@ -384,7 +380,7 @@ public class UserUtils
     * */
     public static void deletePointDataFromManagement(FirebaseAuth mAuth)
     {
-        if ( ((ProducerUser)currentUserSingleton).getLocationKeys() != null)
+        if (((ProducerUser) currentUserSingleton).getLocationKeys() != null)
         {
             String geofireKey = ((ProducerUser) currentUserSingleton)
                     .getLocationKeys()
@@ -394,7 +390,7 @@ public class UserUtils
                     .getKey();
             GeoFireUtils.deleteGeofirePoint(geofireKey);
 
-            if ( ((ProducerUser)currentUserSingleton).getInterestedConsumers() != null)
+            if (((ProducerUser) currentUserSingleton).getInterestedConsumers() != null)
             {
                 ((ProducerUser) currentUserSingleton).getInterestedConsumers().forEach((consumerKey, geoFireKey) ->
                 {
@@ -428,7 +424,8 @@ public class UserUtils
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                dataSnapshot.getChildren().forEach(childData -> {
+                dataSnapshot.getChildren().forEach(childData ->
+                {
                     removeProducerFromConsumer(childData.getKey(), producerKey);
                 });
             }
@@ -478,7 +475,8 @@ public class UserUtils
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                dataSnapshot.getChildren().forEach(childData -> {
+                dataSnapshot.getChildren().forEach(childData ->
+                {
                     if (childData.getKey().equals(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH) ||
                             childData.getKey().equals(PRODUCER_LOCATION_KEY_CHILD_PATH))
                     {
