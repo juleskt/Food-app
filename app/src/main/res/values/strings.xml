@@ -26,4 +26,10 @@
     <string name="has"> has</string>
     <string name="reserve_food">Reserve Food</string>
     <string name="of_food"> of food.</string>
+    <string name="remove_point">Remove Point</string>
+    <string name="add_food">Add Food</string>
+    <string name="add_time">Add  Time</string>
+    <string name="return_to_map">Return to Map</string>
+    <string name="hours_remaining">Hours Remaining:</string>
+    <string name="remaining_food">Remaining Food:</string>
 </resources>

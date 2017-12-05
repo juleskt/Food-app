@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
@@ -68,68 +69,6 @@ public class MapUtils
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference ref = database.getReference(FirebaseUtils.POINT_DATA_NODE_PATH);
 
-                ref.child(geoFireKey).addListenerForSingleValueEvent(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        MapPoint clickedPoint = dataSnapshot.getValue(MapPoint.class);
-
-                        String producerName = mapPoint.getProducerName();
-                        TextView restaurantTextView = consumer_dialog.findViewById(R.id.restaurantTextView);
-                        restaurantTextView.setText(producerName);
-
-                        String point_quantity = String.valueOf(clickedPoint.getQuantity());
-                        TextView quantity_t_box = consumer_dialog.findViewById(R.id.quantity_text_box);
-                        quantity_t_box.setText(point_quantity);
-
-                        String unit_quantity = clickedPoint.getUnit();
-                        TextView unit_t_box = consumer_dialog.findViewById(R.id.units_text_box_1);
-                        unit_t_box.setText(unit_quantity);
-                        unit_t_box = consumer_dialog.findViewById(R.id.units_text_box_2);
-                        unit_t_box.setText(unit_quantity);
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-                    }
-                });
-
-                /*ref.child(geoFireKey).child("quantity").addListenerForSingleValueEvent(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        String point_quantity = dataSnapshot.getValue().toString();
-                        TextView quantity_t_box = consumer_dialog.findViewById(R.id.quantity_text_box);
-                        quantity_t_box.setText(point_quantity);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-                    }
-                });
-
-                ref.child(geoFireKey).child("unit").addListenerForSingleValueEvent(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        String unit_quantity = dataSnapshot.getValue().toString();
-                        TextView unit_t_box = consumer_dialog.findViewById(R.id.units_text_box_1);
-                        unit_t_box.setText(unit_quantity);
-                        unit_t_box = consumer_dialog.findViewById(R.id.units_text_box_2);
-                        unit_t_box.setText(unit_quantity);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-                    }
-                });*/
             });
             Button consumerDialogButton = (Button) consumer_dialog.findViewById(R.id.reserve_food);
             // if button is clicked, close the custom dialog
@@ -152,5 +91,41 @@ public class MapUtils
             });
             consumer_dialog.show();
         });
+    }
+    public static void createPublishManageDialog(Context maps_activity, FirebaseAuth mAuth)
+    {
+        final Dialog dialog = new Dialog(maps_activity);
+        dialog.setContentView(R.layout.producer_manage);
+        dialog.setTitle("Point Management");
+
+        UserUtils.getPointDataForProducerManage(dialog, maps_activity);
+
+
+        // This button is used to close the dialog
+        Button dialogButton = dialog.findViewById(R.id.exit_point_manage);
+        dialogButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        // This button is used to remove a point
+        dialogButton = dialog.findViewById(R.id.remove_point);
+        dialogButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                UserUtils.deletePointDataFromManagement(mAuth);
+                dialog.dismiss();
+            }
+        });
+
+
+        dialog.show();
+
     }
 }

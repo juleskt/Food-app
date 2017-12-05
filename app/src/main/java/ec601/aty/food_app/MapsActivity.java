@@ -422,7 +422,6 @@ public class MapsActivity extends FragmentActivity implements
                 // Refresh current user data after adding point
                 UserUtils.searchForForUserTypeData(mAuth, UserUtils.currentUserSingleton);
 
-                // Todo: Determine a better way to do this instead of hardcoded method
                 if (position == LOGOUT_NAVIGATION_ITEM)
                 {
                     UserUtils.safeSignOut(mAuth);
@@ -431,10 +430,7 @@ public class MapsActivity extends FragmentActivity implements
                 {
                     if (UserUtils.isCurrentUserProducer())
                     {
-                        UserUtils.getPointDataForProducerManage();
-
-                        // Testing delete functionality
-                        UserUtils.deletePointDataFromManagement(mAuth);
+                        MapUtils.createPublishManageDialog(MapsActivity.this, mAuth);
 
                     } else if (UserUtils.isCurrentUserConsumer())
                     {

@@ -2,6 +2,9 @@ package ec601.aty.food_app;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,11 +47,10 @@ public class FirebaseUtils
                         MapPoint pointToAdd = dataSnapshot.getValue(MapPoint.class);
 
                         // Delete if expired
-                        if ( DateAndTimeUtils.checkIfUnixTimeIsExpired(pointToAdd.getExpiryUnixTime()) )
+                        if (DateAndTimeUtils.checkIfUnixTimeIsExpired(pointToAdd.getExpiryUnixTime()))
                         {
                             autoDeletePointData(key, pointToAdd.getPosterID());
-                        }
-                        else
+                        } else
                         {
                             displayMapPointOnMap(
                                     pointToAdd,
@@ -68,11 +70,11 @@ public class FirebaseUtils
     private static void displayMapPointOnMap(MapPoint mapPoint, Map<String, MapPoint> geofireKeyToPointMap)
     {
         MapUtils.addMarkerToMap(
-            new MarkerOptions()
-                    .position(mapPoint.getCoordinates())
-                    .title(mapPoint.getProducerName())
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)),
-            geofireKeyToPointMap
+                new MarkerOptions()
+                        .position(mapPoint.getCoordinates())
+                        .title(mapPoint.getProducerName())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)),
+                geofireKeyToPointMap
         );
     }
 
@@ -94,13 +96,12 @@ public class FirebaseUtils
             quantity = Long.parseLong(quantity_str);
             if (quantity <= 0 || quantity > mapPoint.getQuantity())
             {
-               throw new Exception();
+                throw new Exception();
             }
 
             mapPoint.setQuantity(mapPoint.getQuantity() - quantity);
             FirebaseUtils.updateMapPoint(geofireKey, mapPoint);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             Toast.makeText(context, "Please enter a valid input", Toast.LENGTH_LONG).show();
             return 0;
@@ -135,8 +136,7 @@ public class FirebaseUtils
         {
             hours = Integer.parseInt(validity);
             quantity = Integer.parseInt(quantity_str);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             Toast.makeText(context, "Please enter valid integer inputs", Toast.LENGTH_LONG).show();
             return;
@@ -158,7 +158,8 @@ public class FirebaseUtils
         dialog.dismiss();
     }
 
-    public static void updateMapPoint(String geofireKey, MapPoint pointToModify) {
+    public static void updateMapPoint(String geofireKey, MapPoint pointToModify)
+    {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database
                 .getReference(POINT_DATA_NODE_PATH);
@@ -201,8 +202,8 @@ public class FirebaseUtils
                         {
                             Map<String, Object> consumerMap = pointAssociatedWithProducerFromDB.getInterestedConsumers();
                             Object reservationMap = consumerMap.get(currentConsumerName);
-                            long currentReservationAmount = (long)((HashMap)reservationMap).get("reservationAmount");
-                            ((HashMap)reservationMap).put("reservationAmount", currentReservationAmount + reservationAmount);
+                            long currentReservationAmount = (long) ((HashMap) reservationMap).get("reservationAmount");
+                            ((HashMap) reservationMap).put("reservationAmount", currentReservationAmount + reservationAmount);
                         }
                     }
                     // First consumer
@@ -233,7 +234,7 @@ public class FirebaseUtils
         });
     }
 
-    public static void getPointDataForProducerManagement(String geofireKey)
+    public static void getPointDataForProducerManagement(String geofireKey, Dialog dialog, Context context)
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database
@@ -246,13 +247,79 @@ public class FirebaseUtils
             {
                 MapPoint producerPoint = dataSnapshot.getValue(MapPoint.class);
 
-                // @TODO ANISH: Point should have every thing you need for management
+                TextView food_quantity = dialog.findViewById(R.id.remaining_food);
+                food_quantity.setText(String.valueOf(producerPoint.getQuantity()));
+
+                TextView food_units = dialog.findViewById(R.id.food_units);
+                food_units.setText(producerPoint.getUnit());
+
+                TextView time_left = dialog.findViewById(R.id.remaining_time);
+                float intermediate_time = producerPoint.getExpiryUnixTime() - DateAndTimeUtils.getCurrentUnixTime();
+
+                // Converting Unix Time to hours
+                intermediate_time = intermediate_time / 6000000;
+                time_left.setText(String.valueOf(intermediate_time));
+                final long initial_time = (long) intermediate_time;
+
+                // This button is used to update the food
+                Button dialogButton = dialog.findViewById(R.id.add_food);
+                dialogButton.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        String quantity_str = (((TextView) dialog.findViewById(R.id.add_food_quantity)).getText().toString());
+                        long quantity;
+                        try
+                        {
+                            quantity = Long.parseLong(quantity_str);
+                            if (quantity + producerPoint.getQuantity() < 0)
+                            {
+                                throw new Exception();
+                            }
+
+                            producerPoint.setQuantity(producerPoint.getQuantity() + quantity);
+                            FirebaseUtils.updateMapPoint(geofireKey, producerPoint);
+                            dialog.dismiss();
+                        } catch (Exception e)
+                        {
+                            Toast.makeText(context, "Please enter a valid input that doesn't reduce quantity to less than zero.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                });
+
+                // This button is used to update the food
+                dialogButton = dialog.findViewById(R.id.add_time);
+                dialogButton.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        String quantity_str = (((TextView) dialog.findViewById(R.id.add_time_quantity)).getText().toString());
+                        long quantity;
+                        try
+                        {
+                            quantity = Long.parseLong(quantity_str);
+                            if (quantity + initial_time < 0)
+                            {
+                                throw new Exception();
+                            }
+                            producerPoint.setExpiryUnixTime(DateAndTimeUtils.addHoursToUnixTime(producerPoint.getExpiryUnixTime(), (int) quantity));
+                            FirebaseUtils.updateMapPoint(geofireKey, producerPoint);
+                            dialog.dismiss();
+                        } catch (Exception e)
+                        {
+                            Toast.makeText(context, "Please enter a valid input that doesn't reduce time to less than zero.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                });
 
                 try
                 {
                     Map<String, Object> interestedConsumers = producerPoint.getInterestedConsumers();
-                }
-                catch (NullPointerException e)
+                } catch (NullPointerException e)
                 {
                     // No interested consumers :(
                 }
