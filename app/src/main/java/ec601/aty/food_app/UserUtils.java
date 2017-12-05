@@ -30,6 +30,8 @@ public class UserUtils
     private static final String PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH = "interestedConsumers";
     private static final String CONSUMER_INTERESTED_IN_PRODUCERS_CHILD_PATH = "interestedInProducerList";
 
+    public static ChildEventListener notificationChildEventListener = null;
+
     private static FirebaseAuth mAuth;
 
     public static User currentUserSingleton = null;
@@ -159,6 +161,14 @@ public class UserUtils
 
     public static void safeSignOut(FirebaseAuth mAuth)
     {
+        if ( isCurrentUserProducer() )
+        {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference ref = database.getReference(PRODUCER_DATA_NODE_PATH);
+
+            ref.removeEventListener(notificationChildEventListener);
+        }
+
         mAuth.signOut();
         currentUserSingleton = null;
     }
@@ -278,118 +288,68 @@ public class UserUtils
     {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference(PRODUCER_DATA_NODE_PATH);
-
-//        if ( ((ProducerUser)currentUserSingleton).getInterestedConsumers() == null )
-//        {
-            ref
-                .child(mAuth.getCurrentUser().getUid())
-                .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH)
-                .addChildEventListener(new ChildEventListener()
-                {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s)
-                    {
-                        String channelID = "myChannel";
-                        NotificationChannel mChannel = null;
-
-                        int importance = NotificationManager.IMPORTANCE_HIGH;
-
-                        Notification.Builder notification = new Notification.Builder(context)
-                                .setSmallIcon(R.drawable.ic_account_box_black_24dp);
-
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
-                        {
-                            notification.setContentTitle("Food Reservation")
-                                    .setDefaults(Notification.DEFAULT_ALL)
-                                    .setPriority(Notification.PRIORITY_HIGH)
-                                    .setAutoCancel(true);
-                        }
-                        else
-                        {
-                           mChannel = new NotificationChannel(channelID, "Food Reservation", importance);
-                           mChannel.enableVibration(true);
-                           mChannel.enableLights(true);
-                           mChannel.setLightColor(Color.BLUE);
-                           notificationManager.createNotificationChannel(mChannel);
-                           notification.setChannelId(channelID);
-                        }
-                        getConsumerNameForReservationNotification(notificationManager, notification, dataSnapshot.getKey());
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s)
-                    {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot)
-                    {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s)
-                    {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-
-                    }
-                });
-     //   }
-/*        else
+        notificationChildEventListener = new ChildEventListener()
         {
-            TreeMap<String, Object> sortedInterestedConsumer = new TreeMap<>();
-            sortedInterestedConsumer.putAll( ((ProducerUser)currentUserSingleton).getInterestedConsumers() );
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s)
+            {
+                String channelID = "myChannel";
+                NotificationChannel mChannel = null;
 
-            ref
-                .child(mAuth.getCurrentUser().getUid())
-                .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH)
-                .startAt(sortedInterestedConsumer.lastKey())
-                .addChildEventListener(new ChildEventListener()
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+
+                Notification.Builder notification = new Notification.Builder(context)
+                        .setSmallIcon(R.drawable.ic_account_box_black_24dp);
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
                 {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s)
-                    {
-                        Notification.Builder notification = new Notification.Builder(context)
-                                .setSmallIcon(R.drawable.ic_account_box_black_24dp)
-                                .setContentTitle("Food Reservation")
-                                .setDefaults(Notification.DEFAULT_ALL)
-                                .setPriority(Notification.PRIORITY_HIGH)
-                                .setAutoCancel(true);
+                    notification.setContentTitle("Food Reservation")
+                            .setDefaults(Notification.DEFAULT_ALL)
+                            .setPriority(Notification.PRIORITY_HIGH)
+                            .setAutoCancel(true);
+                }
+                else
+                {
+                    mChannel = new NotificationChannel(channelID, "Food Reservation", importance);
+                    mChannel.enableVibration(true);
+                    mChannel.enableLights(true);
+                    mChannel.setLightColor(Color.BLUE);
+                    notificationManager.createNotificationChannel(mChannel);
+                    notification.setChannelId(channelID);
+                }
+                getConsumerNameForReservationNotification(notificationManager, notification, dataSnapshot.getKey());
+            }
 
-                        getConsumerNameForReservationNotification(notificationManager, notification, dataSnapshot.getKey());
-                    }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s)
+            {
 
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s)
-                    {
+            }
 
-                    }
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot)
+            {
 
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot)
-                    {
+            }
 
-                    }
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s)
+            {
 
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s)
-                    {
+            }
 
-                    }
+            @Override
+            public void onCancelled(DatabaseError databaseError)
+            {
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
+            }
+        };
 
-                    }
-                });
-        }*/
+        ref
+            .child(mAuth.getCurrentUser().getUid())
+            .child(PRODUCER_INTERESTED_CONSUMERS_CHILD_PATH)
+            .addChildEventListener(notificationChildEventListener);
+
     }
 
     private static void getConsumerNameForReservationNotification(NotificationManager notificationManager, Notification.Builder notificationBuilder, String consumerKey)

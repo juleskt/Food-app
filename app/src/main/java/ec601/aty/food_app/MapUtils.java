@@ -88,7 +88,6 @@ public class MapUtils
                         unit_t_box.setText(unit_quantity);
                         unit_t_box = consumer_dialog.findViewById(R.id.units_text_box_2);
                         unit_t_box.setText(unit_quantity);
-
                     }
 
                     @Override
@@ -96,40 +95,6 @@ public class MapUtils
                     {
                     }
                 });
-
-                /*ref.child(geoFireKey).child("quantity").addListenerForSingleValueEvent(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        String point_quantity = dataSnapshot.getValue().toString();
-                        TextView quantity_t_box = consumer_dialog.findViewById(R.id.quantity_text_box);
-                        quantity_t_box.setText(point_quantity);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-                    }
-                });
-
-                ref.child(geoFireKey).child("unit").addListenerForSingleValueEvent(new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        String unit_quantity = dataSnapshot.getValue().toString();
-                        TextView unit_t_box = consumer_dialog.findViewById(R.id.units_text_box_1);
-                        unit_t_box.setText(unit_quantity);
-                        unit_t_box = consumer_dialog.findViewById(R.id.units_text_box_2);
-                        unit_t_box.setText(unit_quantity);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError)
-                    {
-                    }
-                });*/
             });
             Button consumerDialogButton = (Button) consumer_dialog.findViewById(R.id.reserve_food);
             // if button is clicked, close the custom dialog
