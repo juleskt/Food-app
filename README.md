@@ -4,42 +4,29 @@ Recyclr is an app dedicated to reducing food waste. Our goal is simple: make it 
 
 ## Getting Started
 
-To build this project, you need to have Android Studio 3.0. In addition to that, the application is running on Firebase, thus requires keys to connect to the project. You can choose to setup your own Firebase Server and connect the app to it (remember to add the google_api.json to the src folder), or contact us so that we can add the keys to ours.
+To build this project, you need to have Android Studio 3.0. In addition to that, the application is running on Google Firebase, thus requires keys to connect to the project. You can choose to setup your own Firebase Server and connect the app to it (remember to add the google-services.json to the src folder), or contact us so that we can add your SHA-1 fingerprint keys to ours.
 
 ### Installing
 
-
+Assuming that you already have Android Studio, all you need to do is clone the repo:
+```
+git clone https://github.com/juleskt/Food-app.git
+```
 
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+To actually run the application, you need to connect the application to Firebase. Please follow the instructions at [here](https://developer.android.com/studio/write/firebase.html) if you do not know how to do so.
 
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+As for the SHA-1 key, you need to copy it and paste it into your google-services.json file from Firebase, or if you wish to use our Firebase server, you need to contact us with your key so that we can send you a version of the JSON with the key in it. If you are unsure how to find it, please read the thread [here](https://stackoverflow.com/questions/27609442/how-to-get-the-sha-1-fingerprint-certificate-in-android-studio-for-debug-mode) to learn how to do so.
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+Please contact one of us if you wish to contribute to the project.
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Julian Trinh** - <https://github.com/juleskt>
+* **Anish Asthana** - <https://github.com/anishasthana>
+* **Dennis Your** - <https://github.com/incidr>
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
+See also the list of [contributors](https://github.com/juleskt/Food-app/graphs/contributors) who participated in this project.

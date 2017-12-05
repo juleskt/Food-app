@@ -69,6 +69,33 @@ public class MapUtils
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference ref = database.getReference(FirebaseUtils.POINT_DATA_NODE_PATH);
 
+                ref.child(geoFireKey).addListenerForSingleValueEvent(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        MapPoint clickedPoint = dataSnapshot.getValue(MapPoint.class);
+
+                        String producerName = mapPoint.getProducerName();
+                        TextView restaurantTextView = consumer_dialog.findViewById(R.id.restaurantTextView);
+                        restaurantTextView.setText(producerName);
+
+                        String point_quantity = String.valueOf(clickedPoint.getQuantity());
+                        TextView quantity_t_box = consumer_dialog.findViewById(R.id.quantity_text_box);
+                        quantity_t_box.setText(point_quantity);
+
+                        String unit_quantity = clickedPoint.getUnit();
+                        TextView unit_t_box = consumer_dialog.findViewById(R.id.units_text_box_1);
+                        unit_t_box.setText(unit_quantity);
+                        unit_t_box = consumer_dialog.findViewById(R.id.units_text_box_2);
+                        unit_t_box.setText(unit_quantity);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+                    }
+                });
             });
             Button consumerDialogButton = (Button) consumer_dialog.findViewById(R.id.reserve_food);
             // if button is clicked, close the custom dialog
