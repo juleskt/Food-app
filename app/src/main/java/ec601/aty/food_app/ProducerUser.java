@@ -40,21 +40,16 @@ public class ProducerUser extends User
         this.locationKeys = locationKeys;
     }
 
-    @Exclude
-    public boolean isProducerAtPointLimit()
+    public boolean isProducerBelowPointLimit()
     {
-        if (locationKeys != null)
-        {
-            return locationKeys.size() >= PRODUCER_POINT_LIMIT;
-        }
+        return locationKeys == null || locationKeys.size() < PRODUCER_POINT_LIMIT;
 
-        return false;
     }
 
     @Exclude
     public boolean addLocation(String geofireKey, MapPoint point)
     {
-        if (!isProducerAtPointLimit())
+        if (isProducerBelowPointLimit())
         {
             locationKeys.put(geofireKey, point);
             return true;

@@ -103,8 +103,7 @@ public class MapsActivity extends FragmentActivity implements
         if (mAuth.getCurrentUser() == null || UserUtils.currentUserSingleton == null)
         {
             startActivity(new Intent(MapsActivity.this, SplashActivity.class));
-        }
-        else
+        } else
         {
             UserUtils.getCurrentUserDetails(mAuth);
             if (UserUtils.isCurrentUserProducer())
@@ -119,8 +118,7 @@ public class MapsActivity extends FragmentActivity implements
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
                 UserUtils.setInterestedConsumerNotificationForProducer(producerNotificationManager, this, mAuth);
-            }
-            else
+            } else
             {
                 Button publish = findViewById(R.id.sendLocationToFireBase);
                 publish.setVisibility(View.GONE);
@@ -189,15 +187,14 @@ public class MapsActivity extends FragmentActivity implements
     {
         if (UserUtils.isCurrentUserProducer())
         {
-            if (!((ProducerUser) UserUtils.currentUserSingleton).isProducerAtPointLimit())
+            if (((ProducerUser) UserUtils.currentUserSingleton).isProducerBelowPointLimit())
             {
                 currentMapPoint = new MapPoint(point.latitude, point.longitude);
                 mMap.addMarker(new MarkerOptions()
                         .position(point)
                         .title("You are here")
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-            }
-            else
+            } else
             {
                 Toast.makeText(
                         MapsActivity.this,
@@ -227,7 +224,7 @@ public class MapsActivity extends FragmentActivity implements
                 return;
             }
 
-            if ( ((ProducerUser) UserUtils.currentUserSingleton).isProducerAtPointLimit())
+            if (((ProducerUser) UserUtils.currentUserSingleton).isProducerBelowPointLimit())
             {
                 final Dialog dialog = new Dialog(MapsActivity.this);
                 dialog.setContentView(R.layout.publish_dialog);
@@ -430,8 +427,7 @@ public class MapsActivity extends FragmentActivity implements
                 {
                     UserUtils.safeSignOut(mAuth);
                     startActivity(new Intent(MapsActivity.this, LoginActivity.class));
-                }
-                else if (position == MANAGE_FOOD_NAVIGATION_ITEM)
+                } else if (position == MANAGE_FOOD_NAVIGATION_ITEM)
                 {
                     if (UserUtils.isCurrentUserProducer())
                     {
@@ -440,13 +436,11 @@ public class MapsActivity extends FragmentActivity implements
                         // Testing delete functionality
                         UserUtils.deletePointDataFromManagement(mAuth);
 
-                    }
-                    else if (UserUtils.isCurrentUserConsumer())
+                    } else if (UserUtils.isCurrentUserConsumer())
                     {
                         UserUtils.getProducerDataForConsumerManage();
                     }
-                }
-                else
+                } else
                 {
                     Toast.makeText(MapsActivity.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
                 }

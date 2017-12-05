@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity
         googleBtn = (SignInButton) findViewById(R.id.googleBtn);
         typeselect = (Spinner) findViewById(R.id.typeselect);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.account_types, android.R.layout.simple_spinner_item);
+                R.array.account_types, R.layout.spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeselect.setAdapter(adapter);
         accounttype = (TextView) findViewById(R.id.accounttype);
