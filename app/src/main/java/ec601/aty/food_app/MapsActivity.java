@@ -434,7 +434,7 @@ public class MapsActivity extends FragmentActivity implements
 
                     } else if (UserUtils.isCurrentUserConsumer())
                     {
-                        UserUtils.getProducerDataForConsumerManage();
+                        MapUtils.createConsumerManageDialog(MapsActivity.this, mAuth);
                     }
                 } else
                 {

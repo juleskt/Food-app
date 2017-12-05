@@ -106,7 +106,7 @@ public class MapUtils
                 {
                     geoFireKeyToMapPointPair.forEach((geoFireKey, mapPoint) ->
                     {
-                        long reservationAmount = FirebaseUtils.consumeDialogPublish(maps_activity, consumer_dialog, geoFireKey,  mapPoint);
+                        long reservationAmount = FirebaseUtils.consumeDialogPublish(maps_activity, consumer_dialog, geoFireKey, mapPoint);
 
                         if (reservationAmount > 0)
                         {
@@ -119,6 +119,7 @@ public class MapUtils
             consumer_dialog.show();
         });
     }
+
     public static void createPublishManageDialog(Context maps_activity, FirebaseAuth mAuth)
     {
         final Dialog dialog = new Dialog(maps_activity);
@@ -150,9 +151,13 @@ public class MapUtils
                 dialog.dismiss();
             }
         });
-
-
         dialog.show();
+    }
 
+
+    public static void createConsumerManageDialog(Context maps_activity, FirebaseAuth mAuth)
+    {
+
+        UserUtils.getProducerDataForConsumerManage();
     }
 }
