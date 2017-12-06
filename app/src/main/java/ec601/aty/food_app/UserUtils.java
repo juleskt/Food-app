@@ -282,20 +282,20 @@ public class UserUtils
                 Vector<String> food_items = new Vector<>();
                 Map<String, Object> producerMap = ((ConsumerUser) UserUtils.currentUserSingleton).getInterestedInProducerList();
 
-                for (Object val: producerMap.values())
+                for (Object val : producerMap.values())
                 {
-                    if(val instanceof HashMap)
+                    if (val instanceof HashMap)
                     {
-                        String name = (String)((HashMap) val).get("producerName");
-                        String reserved_amount = String.valueOf((long)((HashMap) val).get("reservationAmount"));
-                        String unit = (String)((HashMap) val).get("unit");
+                        String name = (String) ((HashMap) val).get("producerName");
+                        String reserved_amount = String.valueOf((long) ((HashMap) val).get("reservationAmount"));
+                        String unit = (String) ((HashMap) val).get("unit");
                         food_items.add("You have reserved " + reserved_amount + " " + unit + " from " + name);
                     }
                 }
 
-                ListAdapter adapter = new ArrayAdapter<String>(context,android.R.layout.simple_list_item_1,food_items);
+                ListAdapter adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, food_items);
 
-               food_list.setAdapter(adapter);
+                food_list.setAdapter(adapter);
             } else
             {
                 Toast.makeText(context, "You haven't reserved any food!", Toast.LENGTH_LONG).show();

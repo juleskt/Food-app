@@ -2,7 +2,6 @@ package ec601.aty.food_app;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -113,7 +112,6 @@ public class FirebaseUtils
 
         Toast.makeText(context, "" + quantity_str, Toast.LENGTH_LONG).show();
         dialog.dismiss();
-
         return quantity;
     }
 
@@ -252,13 +250,15 @@ public class FirebaseUtils
                 MapPoint producerPoint = dataSnapshot.getValue(MapPoint.class);
 
                 TextView food_quantity = dialog.findViewById(R.id.remaining_food);
-                food_quantity.setText(String.valueOf(producerPoint.getQuantity())+" " + producerPoint.getUnit());
+                food_quantity.setText(String.valueOf(producerPoint.getQuantity()) + " " + producerPoint.getUnit());
 
                 TextView time_left = dialog.findViewById(R.id.remaining_time);
                 float intermediate_time = producerPoint.getExpiryUnixTime() - DateAndTimeUtils.getCurrentUnixTime();
 
                 // Converting Unix Time to hours; 3600000 is the factor to convert milliseconds to hours
                 intermediate_time = intermediate_time / 3600000;
+
+                //Showing only up to two decimal places
                 time_left.setText(String.format("%.2f", intermediate_time));
                 final long initial_time = (long) intermediate_time;
 
@@ -291,23 +291,19 @@ public class FirebaseUtils
                 });
 
                 Map<String, Object> interestedConsumers = producerPoint.getInterestedConsumers();
-
                 ListView consumers_list = dialog.findViewById(R.id.consumers_list);
                 Vector<String> consumer_items = new Vector<>();
-                if (interestedConsumers != null)
 
+                if (interestedConsumers != null)
                 {
                     for (String key : interestedConsumers.keySet())
                     {
-                        long reserved_amount = (long)(((HashMap)interestedConsumers.get(key)).get("reservationAmount"));
-
+                        long reserved_amount = (long) (((HashMap) interestedConsumers.get(key)).get("reservationAmount"));
                         consumer_items.add(key + " has reserved " + String.valueOf(reserved_amount) + " " + producerPoint.getUnit());
-
                     }
                 }
 
-                ListAdapter adapter = new ArrayAdapter<String>(context,android.R.layout.simple_list_item_1,consumer_items);
-
+                ListAdapter adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, consumer_items);
                 consumers_list.setAdapter(adapter);
 
                 // This button is used to update the food
@@ -336,9 +332,6 @@ public class FirebaseUtils
                         }
                     }
                 });
-
-
-
             }
 
             @Override
