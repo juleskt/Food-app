@@ -248,17 +248,14 @@ public class FirebaseUtils
                 MapPoint producerPoint = dataSnapshot.getValue(MapPoint.class);
 
                 TextView food_quantity = dialog.findViewById(R.id.remaining_food);
-                food_quantity.setText(String.valueOf(producerPoint.getQuantity()));
-
-                TextView food_units = dialog.findViewById(R.id.food_units);
-                food_units.setText(producerPoint.getUnit());
+                food_quantity.setText(String.valueOf(producerPoint.getQuantity())+" " + producerPoint.getUnit());
 
                 TextView time_left = dialog.findViewById(R.id.remaining_time);
                 float intermediate_time = producerPoint.getExpiryUnixTime() - DateAndTimeUtils.getCurrentUnixTime();
 
-                // Converting Unix Time to hours
-                intermediate_time = intermediate_time / 6000000;
-                time_left.setText(String.valueOf(intermediate_time));
+                // Converting Unix Time to hours; 3600000 is the factor to convert milliseconds to hours
+                intermediate_time = intermediate_time / 3600000;
+                time_left.setText(String.format("%.2f", intermediate_time));
                 final long initial_time = (long) intermediate_time;
 
                 // This button is used to update the food

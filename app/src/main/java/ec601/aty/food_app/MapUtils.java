@@ -127,9 +127,6 @@ public class MapUtils
         dialog.setContentView(R.layout.producer_manage);
         dialog.setTitle("Point Management");
 
-        UserUtils.getPointDataForProducerManage(dialog, maps_activity);
-
-
         // This button is used to close the dialog
         Button dialogButton = dialog.findViewById(R.id.exit_point_manage);
         dialogButton.setOnClickListener(new View.OnClickListener()
@@ -152,7 +149,8 @@ public class MapUtils
                 dialog.dismiss();
             }
         });
-        dialog.show();
+
+        UserUtils.getPointDataForProducerManage(dialog, maps_activity);
     }
 
 

@@ -263,6 +263,8 @@ public class UserUtils
                 String pointKey = locationPair.getKey();
 
                 FirebaseUtils.getPointDataForProducerManagement(pointKey, dialog, context);
+
+                dialog.show();
             } else
             {
                 Toast.makeText(context, "You don't have any points placed!", Toast.LENGTH_LONG).show();
