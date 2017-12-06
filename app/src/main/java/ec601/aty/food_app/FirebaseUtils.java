@@ -4,7 +4,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 public class FirebaseUtils
 {
@@ -286,6 +290,26 @@ public class FirebaseUtils
                     }
                 });
 
+                Map<String, Object> interestedConsumers = producerPoint.getInterestedConsumers();
+
+                ListView consumers_list = dialog.findViewById(R.id.consumers_list);
+                Vector<String> consumer_items = new Vector<>();
+                if (interestedConsumers != null)
+
+                {
+                    for (String key : interestedConsumers.keySet())
+                    {
+                        long reserved_amount = (long)(((HashMap)interestedConsumers.get(key)).get("reservationAmount"));
+
+                        consumer_items.add(key + " has reserved " + String.valueOf(reserved_amount) + " " + producerPoint.getUnit());
+
+                    }
+                }
+
+                ListAdapter adapter = new ArrayAdapter<String>(context,android.R.layout.simple_list_item_1,consumer_items);
+
+                consumers_list.setAdapter(adapter);
+
                 // This button is used to update the food
                 dialogButton = dialog.findViewById(R.id.add_time);
                 dialogButton.setOnClickListener(new View.OnClickListener()
@@ -313,13 +337,8 @@ public class FirebaseUtils
                     }
                 });
 
-                try
-                {
-                    Map<String, Object> interestedConsumers = producerPoint.getInterestedConsumers();
-                } catch (NullPointerException e)
-                {
-                    // No interested consumers :(
-                }
+
+
             }
 
             @Override

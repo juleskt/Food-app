@@ -4,16 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="350dp"
-    android:layout_height="400dp"
+    android:layout_height="550dp"
     android:theme="@android:style/Theme.Material.Light">
 
     <Button
         android:id="@+id/remove_point"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="300dp"
         android:text="@string/remove_point"
-        app:layout_constraintHorizontal_bias="0.145"
+        app:layout_constraintHorizontal_bias="0.132"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -23,22 +23,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="40dp"
         android:layout_marginTop="8dp"
         android:text="@string/add_food"
         app:layout_constraintBottom_toTopOf="@+id/add_time"
-        app:layout_constraintEnd_toStartOf="@+id/add_food_quantity"
-        app:layout_constraintHorizontal_bias="0.526"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/remove_point"
-        app:layout_constraintVertical_bias="0.333"/>
+        app:layout_constraintVertical_bias="0.988"/>
 
     <Button
         android:id="@+id/add_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="28dp"
         android:layout_marginStart="40dp"
         android:text="@string/add_time"
         app:layout_constraintBottom_toTopOf="@+id/exit_point_manage"
@@ -58,28 +55,29 @@
         android:id="@+id/add_food_quantity"
         android:layout_width="153dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="36dp"
-        android:layout_marginTop="136dp"
+        android:layout_marginTop="300dp"
         android:ems="10"
         android:hint="Quantity"
         android:inputType="number"
+        app:layout_constraintBottom_toTopOf="@+id/add_time_quantity"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"/>
 
     <EditText
         android:id="@+id/add_time_quantity"
         android:layout_width="152dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginBottom="92dp"
+        android:layout_marginEnd="36dp"
         android:ems="10"
         android:hint="Hours"
         android:inputType="number"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_food_quantity"
-        app:layout_constraintVertical_bias="0.007"/>
+        />
 
     <TextView
         android:id="@+id/remaining_food"
@@ -104,7 +102,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:id="@+id/remaining_food"
+        android:id="@+id/leftover_food"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
@@ -123,6 +121,28 @@
         android:layout_marginTop="44dp"
         android:text="@string/hours_remaining"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ListView
+        android:id="@+id/consumers_list"
+        android:layout_width="334dp"
+        android:layout_height="151dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="128dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="88dp"
+        android:text="@string/your_consumers"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

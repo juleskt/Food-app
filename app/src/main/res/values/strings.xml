@@ -33,4 +33,6 @@
     <string name="hours_remaining">Hours Remaining:</string>
     <string name="remaining_food">Remaining Food:</string>
     <string name="reserved_food">Reserved Food</string>
+    <string name="view_consumers">View Consumers</string>
+    <string name="your_consumers">Your Consumers</string>
 </resources>
