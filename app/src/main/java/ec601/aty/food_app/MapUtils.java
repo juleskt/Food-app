@@ -1,5 +1,6 @@
 package ec601.aty.food_app;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.View;
@@ -155,9 +156,23 @@ public class MapUtils
     }
 
 
-    public static void createConsumerManageDialog(Context maps_activity, FirebaseAuth mAuth)
+    public static void createConsumerManageDialog(Context maps_activity)
     {
+        final Dialog dialog = new Dialog(maps_activity);
+        dialog.setContentView(R.layout.consumer_manage);
+        dialog.setTitle("View Reserved food");
 
-        UserUtils.getProducerDataForConsumerManage();
+        UserUtils.getProducerDataForConsumerManage(maps_activity, dialog);
+
+        Button returnButton = dialog.findViewById(R.id.return_to_app);
+        returnButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
     }
 }

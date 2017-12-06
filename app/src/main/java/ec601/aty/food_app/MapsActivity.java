@@ -408,8 +408,8 @@ public class MapsActivity extends FragmentActivity implements
         final int MANAGE_FOOD_NAVIGATION_ITEM = 1;
         final int LOGOUT_NAVIGATION_ITEM = 2;
 
-        String[] osArray = {mAuth.getCurrentUser().getEmail(), "Manage Food", getString(R.string.logout)};
-        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
+        String[] commands = {mAuth.getCurrentUser().getEmail(), "Manage Food", getString(R.string.logout)};
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, commands);
         mDrawerList.setAdapter(mAdapter);
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -434,7 +434,7 @@ public class MapsActivity extends FragmentActivity implements
 
                     } else if (UserUtils.isCurrentUserConsumer())
                     {
-                        MapUtils.createConsumerManageDialog(MapsActivity.this, mAuth);
+                        MapUtils.createConsumerManageDialog(MapsActivity.this);
                     }
                 } else
                 {

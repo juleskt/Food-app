@@ -9,6 +9,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UserUtils
@@ -260,23 +266,37 @@ public class UserUtils
             } else
             {
                 Toast.makeText(context, "You don't have any points placed!", Toast.LENGTH_LONG).show();
-
             }
         }
     }
 
-    public static void getProducerDataForConsumerManage()
+    public static void getProducerDataForConsumerManage(Context context, Dialog dialog)
     {
         if (isCurrentUserConsumer())
         {
             if (((ConsumerUser) UserUtils.currentUserSingleton).getInterestedInProducerList() != null)
             {
+                ListView food_list = dialog.findViewById(R.id.food_list);
+                Vector<String> food_items = new Vector<>();
                 Map<String, Object> producerMap = ((ConsumerUser) UserUtils.currentUserSingleton).getInterestedInProducerList();
-                // @TODO ANISH: Producer Map maps producer keys to sub maps that have geofirekeys, producername, reservation amount, and unit maps
-                // See consumerData with interestedInProducerList on firebase for an example
+
+                for (Object val: producerMap.values())
+                {
+                    if(val instanceof HashMap)
+                    {
+                        String name = (String)((HashMap) val).get("producerName");
+                        String reserved_amount = String.valueOf((long)((HashMap) val).get("reservationAmount"));
+                        String unit = (String)((HashMap) val).get("unit");
+                        food_items.add("You have reserved " + reserved_amount + " " + unit + " from " + name);
+                    }
+                }
+
+                ListAdapter adapter = new ArrayAdapter<String>(context,android.R.layout.simple_list_item_1,food_items);
+
+               food_list.setAdapter(adapter);
             } else
             {
-
+                Toast.makeText(context, "You haven't reserved any food!", Toast.LENGTH_LONG).show();
             }
         }
     }
