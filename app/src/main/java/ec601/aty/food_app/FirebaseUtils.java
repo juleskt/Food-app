@@ -155,6 +155,7 @@ public class FirebaseUtils
 
         String refKey = GeoFireUtils.pushLocationToGeofire(currentMapPoint.getCoordinates());
         UserUtils.addPointForCurrentProducer(refKey, mAuth);
+        UserUtils.getCurrentUserDetails(mAuth);
         FirebaseUtils.pushPointData(refKey, currentMapPoint);
 
         dialog.dismiss();

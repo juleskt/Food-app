@@ -430,6 +430,7 @@ public class UserUtils
                     .getKey();
             FirebaseUtils.deletePointData(pointDataKey);
             UserUtils.searchForForUserTypeData(mAuth, currentUserSingleton);
+            UserUtils.getCurrentUserDetails(mAuth);
         }
     }
 
