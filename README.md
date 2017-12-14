@@ -21,12 +21,12 @@ As for the SHA-1 key, you need to copy it and paste it into your google-services
 
 ## Testing
 For testing we CRUD test all of our database methods through unit tests. The testing are detailed as follows:
-- testConsumerData - tests currently only name
-- testProducerData - tests currently only name
-- testPointData - tests createdUnixTime, expiryUnixTime, latitude, longitude, posterID, producerName, quantity, unit
-- testGeoFireData - tests the latitude and longitude
-- testUserData - tests accountType and name
-However, these unit tests are still in development. We do currently extensively test our functions manually after every major update.
+- testConsumerData - Full CRUD of Consumer objects with Firebase, currently asserting against name.
+- testProducerData - Full CRUD of Producer objects with Firebase, currently asserting against name.
+- testPointData - Full CRUD of Point objects with Firebase, asserts against createdUnixTime, expiryUnixTime, latitude, longitude, posterID, producerName, quantity, and unit
+- testGeoFireData - Full CRUD of GeoFirePoint objects with Firebase, asserts against the latitude and longitude attributes and mock geo-query.
+- testUserData - Full CRUD of UsereData objects with Firebase, asserts against accountType and name
+We also currently extensively system test our app manually after every major update (after running unit tests).
 
 ## Contributing
 
