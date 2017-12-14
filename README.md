@@ -26,6 +26,7 @@ For testing we CRUD test all of our database methods through unit tests. The tes
 - testPointData - Full CRUD of Point objects with Firebase, asserts against createdUnixTime, expiryUnixTime, latitude, longitude, posterID, producerName, quantity, and unit
 - testGeoFireData - Full CRUD of GeoFirePoint objects with Firebase, asserts against the latitude and longitude attributes and mock geo-query.
 - testUserData - Full CRUD of UsereData objects with Firebase, asserts against accountType and name
+
 We also currently extensively system test our app manually after every major update (after running unit tests).
 
 ## Contributing
