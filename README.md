@@ -19,6 +19,14 @@ To actually run the application, you need to connect the application to Firebase
 
 As for the SHA-1 key, you need to copy it and paste it into your google-services.json file from Firebase, or if you wish to use our Firebase server, you need to contact us with your key so that we can send you a version of the JSON with the key in it. If you are unsure how to find it, please read the thread [here](https://stackoverflow.com/questions/27609442/how-to-get-the-sha-1-fingerprint-certificate-in-android-studio-for-debug-mode) to learn how to do so.
 
+## Testing
+For testing we CRUD test all of our database methods through instrumented tests. The testing are detailed as follows:
+testConsumerData - tests currently only name
+testProducerData - tests currently only name
+testPointData - tests createdUnixTime, expiryUnixTime, latitude, longitude, posterID, producerName, quantity, unit
+testGeoFireData - tests the latitude and longitude
+testUserData - tests accountType and name
+
 ## Contributing
 
 Please contact one of us if you wish to contribute to the project.
